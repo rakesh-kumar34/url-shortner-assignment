@@ -19,7 +19,7 @@ AI assistance happens outside this control flow, during engineering tasks. No ru
 
 ## Request flow
 
-Create: validate the request → authenticate the operator → enforce URL policy → fingerprint normalized fields → check durable retry key → insert the new resource and retry record in one transaction → return 201. The actual HTTP security filters authenticate before the controller deserializes the body. Matching retries return 200 and the same resource's current representation.
+Create: enforce request limits → authenticate the operator → deserialize and validate the request body → enforce URL policy → fingerprint normalized fields → check durable retry key → insert the new resource and retry record in one transaction → return 201. Matching retries return 200 and the same resource's current representation.
 
 Redirect: locate and lock the link row → evaluate expiry/disable at the injected UTC clock → increment lifetime and daily aggregates in the same transaction → commit → return 302 and `Cache-Control: no-store`. HEAD uses the same lifecycle checks but does not count. There is no server-side destination request, preview crawler or DNS lookup for arbitrary hostnames.
 

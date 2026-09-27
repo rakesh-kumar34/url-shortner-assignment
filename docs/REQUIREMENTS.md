@@ -1,6 +1,6 @@
 # Assignment requirements and evidence
 
-This map covers the supplied PDF's eight core requirements and five deliverables. The PDF is stack-neutral; Java 17 and Spring Boot implement the owner's separate role preference. The internal PDF is not redistributed. Evidence describes actual work and does not claim that the session spanned the suggested 2–3 days.
+This map covers the supplied PDF's eight core requirements and five deliverables. The PDF is stack-neutral; Java 17 and Spring Boot implement the owner's separate role preference. The internal PDF is not redistributed. Evidence describes the actual build session and follow-up reviews. The PDF describes a 2–3-day working period; this repository does not assert that 2–3 full days elapsed.
 
 ## Core requirements
 

@@ -1,6 +1,14 @@
 # Validation record
 
-Evidence recorded on 2026-09-27. [Final application verification](https://github.com/rakesh-kumar34/url-shortner-assignment/actions/runs/36327265545) passed for commit `054cc95`: 36 cases on H2, 36 cases on PostgreSQL, dependency audit, Docker Compose build/runtime and Chromium browser flows. H2 in PostgreSQL mode is not a substitute for executing against PostgreSQL; both environments were exercised.
+Evidence recorded on 2026-09-27. [Final application verification](https://github.com/rakesh-kumar34/url-shortner-assignment/actions/runs/36327265545) passed for commit `054cc95`: the 36-case suite in both H2 and PostgreSQL configurations, dependency audit, Docker Compose build/runtime and Chromium browser flows. H2 in PostgreSQL mode is not a substitute for executing against PostgreSQL; both environments were exercised.
+
+## Final PDF compliance recheck
+
+A fresh Java 17 `clean verify` on 2026-09-27 passed all 36 cases with no failures, errors or skips and zero Checkstyle violations. The runtime dependency audit again checked 100 packages with no OSV findings. The newly packaged JAR passed HTTP smoke, a real restart with persistent retry replay, and the targeted log-redaction assertions. The benchmark below records this rerun.
+
+The published application, tests, scripts and configuration at `b15451e` were compared by Git blob hashes with successful CI revision `054cc95`; only Markdown documentation differed. This confirms that the recorded PostgreSQL, Docker Compose and browser results apply to the current implementation. The follow-up audit changes documentation only.
+
+An independent read-only compliance review found no critical or important gaps in the eight requirement categories or five deliverables. It identified two minor documentation issues: request-flow ordering and wording of database test coverage; both were corrected. The requirement map was checked against the PDF, implementation, tests and milestone history. This supports technical deliverable coverage. It cannot certify an evaluator's judgment, personal understanding or an unrecorded period of work. The AI task contracts are explicitly summarized records, and the candidate remains the reviewer and submission approver.
 
 ## Executed milestone checks
 
@@ -54,10 +62,10 @@ The same local run measured one hot link with 100 requests at concurrency eight:
 
 | Measurement | Result |
 | --- | ---: |
-| Elapsed time | 0.519 s |
-| Throughput | 192.8 requests/s |
-| Median latency | 25.25 ms |
-| 95th-percentile latency | 104.70 ms |
+| Elapsed time | 0.483 s |
+| Throughput | 207.2 requests/s |
+| Median latency | 27.40 ms |
+| 95th-percentile latency | 84.51 ms |
 | Recorded resolutions | 100 / 100 |
 
 This was a short, warm-JVM, single-process H2 measurement with no external destination fetch. It does not establish sustained throughput, PostgreSQL performance, multi-instance behavior or a production SLA.
@@ -67,7 +75,7 @@ This was a short, warm-JVM, single-process H2 measurement with no external desti
 | Check | Status / reason |
 | --- | --- |
 | Docker Compose | Passed in the linked final CI run: container build, PostgreSQL startup/readiness and HTTP smoke |
-| PostgreSQL CI | 36 cases passed with zero failures/errors/skips in [run 36327265545](https://github.com/rakesh-kumar34/url-shortner-assignment/actions/runs/36327265545); H2 verification and dependency auditing also passed |
+| PostgreSQL CI | The 36-case suite passed in the PostgreSQL configuration with zero failures/errors/skips in [run 36327265545](https://github.com/rakesh-kumar34/url-shortner-assignment/actions/runs/36327265545); H2 verification and dependency auditing also passed |
 | Browser interaction and responsive visual review | Passed: desktop create/list/analytics/disable, invalid token, memory-only credential, reload, in-flight disconnect cancellation, no browser exceptions, and no horizontal overflow at 390/768px. Screenshots are retained in the `browser-smoke-evidence` CI artifact |
 | Candidate submission acceptance | Reviewer / submission approver: **Rakesh Kumar**. Accepted for interview submission on 2026-09-27; [acceptance record](REVIEW_CHECKLIST.md) contains the evidence, scope and decision |
 

@@ -40,7 +40,7 @@ Review date: **2026-09-27**. Decision: **accepted for interview submission withi
 | Acceptance basis | PDF requirement coverage, scenario history, recorded validation evidence and documented prototype limits |
 | Reviewed application commit | [`054cc9594078db3858a8dc989e4065aa87a89e0d`](https://github.com/rakesh-kumar34/url-shortner-assignment/commit/054cc9594078db3858a8dc989e4065aa87a89e0d) |
 | Review date | 2026-09-27 (America/New_York) |
-| Verification evidence | [Successful CI run 36327265545](https://github.com/rakesh-kumar34/url-shortner-assignment/actions/runs/36327265545): 36 cases on each database, dependency audit, Docker Compose and browser smoke |
+| Verification evidence | [Successful CI run 36327265545](https://github.com/rakesh-kumar34/url-shortner-assignment/actions/runs/36327265545): 36-case suite passed in both H2 and PostgreSQL configurations, plus dependency audit, Docker Compose and browser smoke |
 | Scenario commits reviewed | Greenfield `95bc345`; brownfield `322873a`; ambiguity `ec57f00` |
 | Submission decision | **Accepted for interview submission; no technical acceptance blockers found** |
 | Scope / exceptions | Documented prototype limits accepted for the assignment; production deployment requires separate approval |
