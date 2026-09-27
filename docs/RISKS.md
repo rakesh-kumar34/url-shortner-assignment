@@ -11,7 +11,7 @@
 | Private management data exposed | Bearer boundary, memory-only token, safe DOM rendering and cancellation on disconnect | One operator credential; add OIDC/ownership for multi-user deployment |
 | Old data breaks after enhancement | Additive V1–V3 migrations, populated-V1 test, retained schema names and route aliases | Rehearse backups, restore and rolling upgrade for production |
 | Dependency vulnerability | OSV audit; Tomcat family pinned to patched version; automated dependency updates | Audit is point-in-time and does not cover every software layer |
-| AI-generated error or overstated evidence | Task contracts, independent review, red/green regressions, explicit limits | Candidate must inspect, explain and accept the work |
+| AI-generated error or overstated evidence | Task contracts, independent review, red/green regressions, explicit limits | Owner-authorized delegated acceptance is recorded; the candidate retains ownership and must be able to explain the submission |
 | Misleading analytics/performance | Counts explicitly mean committed GET resolutions; benchmark methodology recorded | Not unique visitors, delivery confirmation or production capacity |
 
 Production priorities are separate from the interview prototype: distributed abuse prevention, identity/ownership, monitoring and alerting, tested backup/recovery, deployment TLS and load testing against agreed traffic. They should follow actual requirements rather than being added solely to increase component count.

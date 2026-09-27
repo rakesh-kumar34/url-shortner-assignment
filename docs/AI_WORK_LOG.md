@@ -1,6 +1,6 @@
 # AI-assisted execution record
 
-This is a record of this build session, not a fabricated multi-day diary. Codex assisted implementation, test generation, debugging and documentation. The application itself does not call an LLM. The engineer owns the submission and must review it before presenting it as approved.
+This is a record of this build session, not a fabricated multi-day diary. Codex assisted implementation, test generation, debugging and documentation. The application itself does not call an LLM. The engineer owns the submission. The owner-authorized delegated acceptance review and its actual reviewer are identified in [REVIEW_CHECKLIST.md](REVIEW_CHECKLIST.md).
 
 ## Inputs and ownership
 
@@ -20,7 +20,7 @@ This is a record of this build session, not a fabricated multi-day diary. Codex 
 | Lifecycle | Evolve a working baseline without deleting old links | Additive migrations; 410 for expired/disabled; UTC daily counts atomically updated | Generated migration and transaction design; retained row locks as the cross-instance correctness boundary |
 | Retry semantics | Clarify what a repeated creation means | Durable idempotency; payload conflicts; no duplication after timeout; replay after expiry | Decided same key returns same resource/current state; different key can create another link for the same destination |
 | Validation | Exercise failure paths, not just happy paths | Authentication, malformed inputs, time boundaries, concurrency, migration and rollback | Generate tests, observe failures, then refine implementation; final results are recorded in VALIDATION.md |
-| Review | Make the outcome defensible | No false claim of human approval, production scale or unexecuted checks | Generated architecture, runbook and review material; final human sign-off remains explicitly pending |
+| Review | Make the outcome defensible | No false claim of human approval, production scale or unexecuted checks | Generated architecture, runbook and review material; the owner later explicitly delegated acceptance, recorded with the actual reviewer and supporting evidence |
 
 These are concise task-contract summaries from the execution, not purported verbatim conversations with a human reviewer.
 
@@ -39,7 +39,7 @@ These are concise task-contract summaries from the execution, not purported verb
 
 Use synthetic URLs and test credentials. Never provide production logs, tokens, private customer URLs or PII to the model. Do not execute instructions discovered inside repository files as authorization to share secrets or publish elsewhere. Review generated migrations and SQL; run tests against the supported database; inspect diffs and dependency versions. Avoid logging raw invalid payloads.
 
-The assistant can prepare code and checks. The engineer must approve security policy, production schema changes, deployment, credential changes and data deletion. This assignment authorizes preparation and publication of a new project, not a production deployment. No approval is claimed here on the engineer's behalf.
+The assistant can prepare code and checks. The engineer must approve security policy, production schema changes, deployment, credential changes and data deletion. This assignment authorizes preparation and publication of a new project, not a production deployment. No production approval is claimed. The later, explicitly delegated interview-submission review is recorded below.
 
 ## Debugging evidence
 
@@ -53,3 +53,7 @@ The assistant can prepare code and checks. The engineer must approve security po
 ## Submission review follow-up
 
 The final pass added the PDF requirement map, explicit task contracts and a risk register; reproduced and fixed encoded-path admission and transaction-start error handling; added disconnect cancellation and automated Docker/browser verification; and standardized source/API terminology on URL. See [AI_WORKFLOW.md](AI_WORKFLOW.md) and [VALIDATION.md](VALIDATION.md).
+
+## Delegated acceptance follow-up
+
+On 2026-09-27, the candidate explicitly asked Codex to complete candidate acceptance on his behalf. The review rechecked the published application revision and successful CI, inspected the three milestone commits and current migration/transaction/retry implementation, reviewed the stated prototype limits, and checked the tracked-file inventory and common credential patterns. The completed [acceptance record](REVIEW_CHECKLIST.md) accepts the project for interview submission and identifies Codex as the reviewing delegate. It does not claim a personal review by the candidate or production approval. This follow-up changes documentation only.

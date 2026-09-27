@@ -48,4 +48,4 @@ The verified local milestone snapshots were imported in sequence through the Git
 
 ## Human ownership
 
-The engineer still needs to accept the trade-offs: one shared management credential, no destination reputation service, row-lock contention on hot links, and database write availability on the redirect path. [AI_WORK_LOG.md](AI_WORK_LOG.md) records AI-generated, edited and rejected choices. No human sign-off is claimed.
+The owner explicitly delegated the acceptance review. That review accepted one shared management credential, no destination reputation service, row-lock contention on hot URLs and database write availability on the redirect path as documented interview-prototype limits. [REVIEW_CHECKLIST.md](REVIEW_CHECKLIST.md) identifies the reviewer and decision; the candidate retains ownership. [AI_WORK_LOG.md](AI_WORK_LOG.md) records AI-generated, edited and rejected choices.

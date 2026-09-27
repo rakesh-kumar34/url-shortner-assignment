@@ -9,10 +9,10 @@ This map covers the supplied PDF's eight core requirements and five deliverables
 | 1. Understand intent and ambiguity | [Design](DESIGN.md), [scenarios](SCENARIOS.md): destination preservation, duplicate URLs, retry identity, expiry and the meaning of analytics are explicit | Covered |
 | 2. Decompose tasks and sequence dependencies | [Implementation plan](IMPLEMENTATION_PLAN.md): baseline → additive lifecycle/schema work → durable retries → validation and delivery | Covered |
 | 3. Reason about an existing codebase | Brownfield scenario identifies controller, service, entities, migration and analytics flow; `MigrationTest` upgrades populated V1 data | Covered |
-| 4. Use AI with task contracts, iteration and traceability | [Execution record](AI_WORK_LOG.md), [task contracts and gates](AI_WORKFLOW.md): generated/edited/rejected choices, actual failures, fixes, secure context, and owner approval boundaries | Covered; human acceptance remains below |
+| 4. Use AI with task contracts, iteration and traceability | [Execution record](AI_WORK_LOG.md), [task contracts and gates](AI_WORKFLOW.md): generated/edited/rejected choices, actual failures, fixes, secure context, and owner approval boundaries | Covered; delegated acceptance recorded |
 | 5. Generate engineering artifacts | Java source, explicit API DTOs, [OpenAPI](../src/main/resources/static/openapi.yaml), Flyway migrations, tests, Maven wrapper, Docker Compose and CI | Covered |
 | 6. Validate and control risks | [Validation](VALIDATION.md), [risk register](RISKS.md): transactions, migration, concurrency, abuse boundaries, dependency scan and measured performance | Covered within stated prototype scope |
-| 7. Maintain engineer-led oversight | The owner selected the stack, reference-only approach and final terminology. [Review checklist](REVIEW_CHECKLIST.md) records decisions requiring candidate acceptance; no approval is fabricated | Candidate sign-off pending |
+| 7. Maintain engineer-led oversight | The owner selected the stack, reference-only approach and terminology, then explicitly delegated the acceptance review. [Review checklist](REVIEW_CHECKLIST.md) identifies the reviewer, scope, evidence and decision | Owner-directed review and delegated acceptance recorded |
 | 8. Summarize the engineering outcome | [Final summary](FINAL_SUMMARY.md): artifacts, rationale, assumptions, validation, trade-offs and limits | Covered |
 
 ## Required deliverables
@@ -44,4 +44,4 @@ Earlier `/api/links` routes remain compatibility aliases. Already-applied V1–V
 
 ## Submission decision
 
-A successful technical validation does not substitute for the candidate's review. The remaining owner action is to review the design and AI-assisted changes, run or observe the demo, and record acceptance in [REVIEW_CHECKLIST.md](REVIEW_CHECKLIST.md). Production deployment requires separate operational and security decisions.
+At the candidate's explicit request, Codex completed the acceptance review on his behalf on 2026-09-27. The outcome is accepted for interview submission within the documented prototype scope; [REVIEW_CHECKLIST.md](REVIEW_CHECKLIST.md) records the evidence and actual reviewer. This is delegated review, not a claim that the candidate personally performed every check. The candidate retains ownership, and production deployment requires separate operational and security decisions.
