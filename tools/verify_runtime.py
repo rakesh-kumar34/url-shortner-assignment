@@ -11,7 +11,7 @@ import time
 import urllib.error
 import urllib.request
 
-jar = Path("target/shortline-1.0.0.jar").resolve()
+jar = Path("target/url-shortener-1.0.0.jar").resolve()
 if not jar.exists():
     raise SystemExit("Build the JAR first with ./mvnw verify")
 with socket.socket() as sock:
@@ -29,7 +29,7 @@ def create():
     with opener.open(request, timeout=10) as response:
         return response.status, json.load(response)["code"]
 
-with tempfile.TemporaryDirectory(prefix="shortline-runtime-") as folder:
+with tempfile.TemporaryDirectory(prefix="url-shortener-runtime-") as folder:
     log_path = Path(folder) / "server.log"
     def start():
         log = log_path.open("ab")

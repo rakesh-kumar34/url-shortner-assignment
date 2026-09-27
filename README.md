@@ -1,4 +1,4 @@
-# Shortline
+# AI Assisted URL Shortener
 
 Repository: [rakesh-kumar34/url-shortner-assignment](https://github.com/rakesh-kumar34/url-shortner-assignment)
 

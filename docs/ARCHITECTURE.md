@@ -1,6 +1,6 @@
 # Architecture and decisions
 
-Shortline is one deployable service with clear module boundaries. It uses Java 17 records for API contracts, constructor injection, Bean Validation, Spring Security, JPA repositories and Flyway migrations. PostgreSQL is the deployment database; the default H2 file profile is for a local demo, not evidence of PostgreSQL compatibility by itself.
+The URL shortener is one deployable service with clear module boundaries. It uses Java 17 records for API contracts, constructor injection, Bean Validation, Spring Security, JPA repositories and Flyway migrations. PostgreSQL is the deployment database; the default H2 file profile is for a local demo, not evidence of PostgreSQL compatibility by itself.
 
 ```mermaid
 flowchart TD

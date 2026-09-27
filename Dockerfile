@@ -7,9 +7,9 @@ COPY src src
 RUN mvn -B -DskipTests package
 
 FROM eclipse-temurin:17-jre-jammy
-RUN groupadd --system shortline && useradd --system --gid shortline --home-dir /app shortline
+RUN groupadd --system urlshortener && useradd --system --gid urlshortener --home-dir /app urlshortener
 WORKDIR /app
-COPY --from=build --chown=shortline:shortline /build/target/shortline-1.0.0.jar app.jar
-USER shortline
+COPY --from=build --chown=urlshortener:urlshortener /build/target/url-shortener-1.0.0.jar app.jar
+USER urlshortener
 EXPOSE 8080
 ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]

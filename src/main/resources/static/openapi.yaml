@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: Shortline API
+  title: URL Shortener API
   version: 1.0.0
   description: >-
     Single-operator URL management and public redirects. Counts are committed GET

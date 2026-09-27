@@ -1,4 +1,4 @@
-# Shortline design brief
+# URL Shortener design brief
 
 ## Purpose
 An original Java 17 / Spring Boot URL shortener for the provided engineering assignment and Java role. The assignment is stack-neutral; the owner requested Java 17 and Spring Boot. The supplied candidate repository is reference-only. No reference code or internal assignment PDF is included.

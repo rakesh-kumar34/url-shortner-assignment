@@ -3,22 +3,22 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Shortline — simple, dependable short links with clear analytics.">
-  <title>Shortline · Link workspace</title>
+  <meta name="description" content="URL Shortener — simple, dependable short links with clear analytics.">
+  <title>URL Shortener · Link workspace</title>
   <link rel="stylesheet" href="/styles.css">
   <script src="/app.js" defer></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
   <aside class="sidebar">
-    <a class="brand" href="/" aria-label="Shortline home"><span class="brand-mark">s.</span>shortline<span class="brand-dot">●</span></a>
+    <a class="brand" href="/" aria-label="URL Shortener home"><span class="brand-mark" aria-hidden="true">↗</span>URL Shortener<span class="brand-dot">●</span></a>
     <div class="workspace"><span class="workspace-icon">RK</span><div>Link workspace<small>Operator console</small></div></div>
     <p class="nav-caption">WORKSPACE</p>
     <nav><a class="nav-item current" href="#main"><span>↗</span> Your links <span class="nav-arrow">→</span></a><a class="nav-item" href="/openapi.yaml"><span>⌘</span> API reference</a></nav>
     <div class="sidebar-bottom"><span class="health-dot" id="health-dot"></span><span id="health">Checking service…</span><small>Built for a clear path forward.</small></div>
   </aside>
   <div class="workspace-main">
-    <header class="topbar"><span>Workspace <span class="slash">/</span> <strong>Your links</strong></span><span class="environment">SHORTLINE <span class="version">1.0</span></span></header>
+    <header class="topbar"><span>Workspace <span class="slash">/</span> <strong>Your links</strong></span><span class="environment">URL SHORTENER <span class="version">1.0</span></span></header>
     <main id="main">
       <section class="hero"><div class="eyebrow"><span></span> SMALL LINKS. CLEAR INSIGHTS.</div><h1>Make every link count.</h1><p>Create a simpler way to share. See where it leads.</p></section>
       <section class="auth-panel" aria-label="Connect to your workspace">
@@ -46,7 +46,7 @@
         </section>
       </div>
       <section id="analytics" class="panel analytics-panel hidden" aria-labelledby="analytics-title"><div class="list-heading"><div><div class="eyebrow">LINK INSIGHTS</div><h2 id="analytics-title">Link analytics</h2></div><button id="close-stats" class="icon-button" type="button" aria-label="Close analytics">×</button></div><div class="analytics-body"><div class="metric"><span id="click-count">0</span><p>Lifetime resolutions</p><small>GET requests, including bots and repeats.<br>HEAD requests are excluded.</small></div><div class="chart-wrap"><p class="chart-label">Last 30 days · UTC</p><svg id="chart" role="img" aria-label="Daily resolutions over the last 30 UTC days" viewBox="0 0 640 140"></svg><div class="chart-axis"><span id="chart-start"></span><span id="chart-end"></span></div><details><summary>View daily counts</summary><table><thead><tr><th>Date (UTC)</th><th>Resolutions</th></tr></thead><tbody id="daily-table"></tbody></table></details></div></div></section>
-      <footer class="page-footer"><span>Shorter links. Thoughtful engineering.</span><span>Shortline © 2026</span></footer>
+      <footer class="page-footer"><span>Shorter links. Thoughtful engineering.</span><span>URL Shortener © 2026</span></footer>
     </main>
   </div>
 </body>

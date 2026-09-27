@@ -1,0 +1,47 @@
+package com.rakesh.urlshortener.persistence;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
+import java.time.Instant;
+
+@Entity
+@Table(name = "links")
+public class Link {
+    @Id @Column(length = 32) private String code;
+    @Version private Long version;
+    @Column(nullable = false, length = 2048) private String destination;
+    @Column(nullable = false, length = 120) private String title;
+    @Column(nullable = false) private Instant createdAt;
+    @Column(nullable = false) private long totalClicks;
+    private Instant lastClickedAt;
+    private Instant expiresAt;
+    private Instant disabledAt;
+
+    protected Link() { }
+
+    public Link(String code, String destination, String title, Instant createdAt, Instant expiresAt) {
+        this.code = code;
+        this.destination = destination;
+        this.title = title;
+        this.createdAt = createdAt;
+        this.expiresAt = expiresAt;
+    }
+
+    public void recordClick(Instant now) { totalClicks++; lastClickedAt = now; }
+    public String getCode() { return code; }
+    public String getDestination() { return destination; }
+    public String getTitle() { return title; }
+    public Instant getCreatedAt() { return createdAt; }
+    public long getTotalClicks() { return totalClicks; }
+    public Instant getLastClickedAt() { return lastClickedAt; }
+    public Instant getExpiresAt() { return expiresAt; }
+    public Instant getDisabledAt() { return disabledAt; }
+    public void disable(Instant now) { if (disabledAt == null) { disabledAt = now; } }
+    public String statusAt(Instant now) {
+        if (disabledAt != null) { return "DISABLED"; }
+        return expiresAt != null && !now.isBefore(expiresAt) ? "EXPIRED" : "ACTIVE";
+    }
+}

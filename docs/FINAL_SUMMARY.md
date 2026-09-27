@@ -1,6 +1,6 @@
 # Delivery summary
 
-Shortline implements the URL-shortener assignment as an original Java 17 / Spring Boot service, aligned with the requested Java role. It includes a same-origin browser console and REST API, persistent storage, an OpenAPI contract, Docker Compose configuration and CI. The supplied candidate repository was reference-only; no source code was copied and the internal assignment PDF is excluded.
+This project implements the URL-shortener assignment as an original Java 17 / Spring Boot service, aligned with the requested Java role. It includes a same-origin browser console and REST API, persistent storage, an OpenAPI contract, Docker Compose configuration and CI. The supplied candidate repository was reference-only; no source code was copied and the internal assignment PDF is excluded.
 
 ## Delivered behavior
 
@@ -23,7 +23,7 @@ The packaged JAR passed HTTP smoke checks, retained its link and idempotency res
 
 ## Remaining limits and acceptance
 
-PostgreSQL/Compose execution and visual browser testing have not completed in this environment. PostgreSQL testing is configured in CI, but configuration is not a passing CI result. Repository: [rakesh-kumar34/url-shortner-assignment](https://github.com/rakesh-kumar34/url-shortner-assignment). Human submission sign-off remains pending.
+GitHub Actions completed H2 verification, the dependency audit and PostgreSQL integration tests successfully for the initial delivery. Docker Compose execution and visual browser testing remain unverified. See the linked CI evidence in VALIDATION.md. Repository: [rakesh-kumar34/url-shortner-assignment](https://github.com/rakesh-kumar34/url-shortner-assignment). Human submission sign-off remains pending.
 
 The prototype has one operator credential and process-local admission limits. Hot links serialize database writes; analytics count committed resolutions, not unique people or confirmed destination visits. It does not claim production capacity, an SLA, multi-tenancy or destination safety scanning. These are deliberate scope boundaries with follow-up paths in [ARCHITECTURE.md](ARCHITECTURE.md).
 

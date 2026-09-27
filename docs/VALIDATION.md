@@ -63,7 +63,7 @@ This was a short, warm-JVM, single-process H2 measurement with no external desti
 | Check | Status / reason |
 | --- | --- |
 | PostgreSQL and Docker Compose | Not executed locally: Docker is unavailable; installing PostgreSQL was blocked by the environment's package-management UID restriction |
-| PostgreSQL CI | Workflow supplied; no successful hosted run observed yet |
+| PostgreSQL CI | Passed in [GitHub Actions run 36294271325](https://github.com/rakesh-kumar34/url-shortner-assignment/actions/runs/36294271325) for delivery commit `aa6965d`; H2 verification and dependency auditing also passed |
 | Browser interaction and responsive visual review | Not completed: browser installation failed while downloading its archive |
 | Human submission review | Pending; no human sign-off claimed |
 

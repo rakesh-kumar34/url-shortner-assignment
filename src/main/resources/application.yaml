@@ -1,6 +1,6 @@
 spring:
   application:
-    name: shortline
+    name: url-shortener
   profiles:
     default: local
   jpa:

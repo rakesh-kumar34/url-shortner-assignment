@@ -1,4 +1,4 @@
-# Shortline Java implementation plan
+# URL Shortener Java implementation plan
 
 > **For agentic workers:** Use superpowers:executing-plans. Check off actual evidence only.
 
