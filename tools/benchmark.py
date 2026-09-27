@@ -17,7 +17,7 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, *args, **kwargs):
         return None
 
-req = urllib.request.Request(origin + "/api/links", data=b'{"url":"https://example.com/benchmark","title":"Benchmark"}',
+req = urllib.request.Request(origin + "/api/urls", data=b'{"url":"https://example.com/benchmark","title":"Benchmark"}',
                              headers={"Authorization": "Bearer " + token, "Content-Type": "application/json"})
 with urllib.request.urlopen(req, timeout=10) as response:
     code = json.load(response)["code"]
@@ -37,7 +37,7 @@ start = time.perf_counter()
 with concurrent.futures.ThreadPoolExecutor(max_workers=concurrency) as pool:
     samples = sorted(pool.map(hit, range(count)))
 duration = time.perf_counter() - start
-req = urllib.request.Request(origin + f"/api/links/{code}/stats", headers={"Authorization": "Bearer " + token})
+req = urllib.request.Request(origin + f"/api/urls/{code}/stats", headers={"Authorization": "Bearer " + token})
 with urllib.request.urlopen(req, timeout=10) as response:
     total = json.load(response)["totalClicks"]
 assert total == count, f"Lost counts: {total}/{count}"

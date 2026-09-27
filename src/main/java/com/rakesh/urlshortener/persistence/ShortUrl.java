@@ -9,7 +9,7 @@ import java.time.Instant;
 
 @Entity
 @Table(name = "links")
-public class Link {
+public class ShortUrl {
     @Id @Column(length = 32) private String code;
     @Version private Long version;
     @Column(nullable = false, length = 2048) private String destination;
@@ -20,9 +20,9 @@ public class Link {
     private Instant expiresAt;
     private Instant disabledAt;
 
-    protected Link() { }
+    protected ShortUrl() { }
 
-    public Link(String code, String destination, String title, Instant createdAt, Instant expiresAt) {
+    public ShortUrl(String code, String destination, String title, Instant createdAt, Instant expiresAt) {
         this.code = code;
         this.destination = destination;
         this.title = title;

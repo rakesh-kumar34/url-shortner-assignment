@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: ${TEST_DATABASE_URL:jdbc:h2:mem:shortline;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;LOCK_TIMEOUT=5000}
+    url: ${TEST_DATABASE_URL:jdbc:h2:mem:url_shortener;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;LOCK_TIMEOUT=5000}
     username: ${TEST_DATABASE_USER:sa}
     password: ${TEST_DATABASE_PASSWORD:}
   jpa:

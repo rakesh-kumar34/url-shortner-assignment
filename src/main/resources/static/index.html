@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="URL Shortener — simple, dependable short links with clear analytics.">
-  <title>URL Shortener · Link workspace</title>
+  <meta name="description" content="URL Shortener — simple, dependable short URLs with clear analytics.">
+  <title>URL Shortener · URL workspace</title>
   <link rel="stylesheet" href="/styles.css">
   <script src="/app.js" defer></script>
 </head>
@@ -12,41 +12,41 @@
   <a class="skip" href="#main">Skip to content</a>
   <aside class="sidebar">
     <a class="brand" href="/" aria-label="URL Shortener home"><span class="brand-mark" aria-hidden="true">↗</span>URL Shortener<span class="brand-dot">●</span></a>
-    <div class="workspace"><span class="workspace-icon">RK</span><div>Link workspace<small>Operator console</small></div></div>
+    <div class="workspace"><span class="workspace-icon">RK</span><div>URL workspace<small>Operator console</small></div></div>
     <p class="nav-caption">WORKSPACE</p>
-    <nav><a class="nav-item current" href="#main"><span>↗</span> Your links <span class="nav-arrow">→</span></a><a class="nav-item" href="/openapi.yaml"><span>⌘</span> API reference</a></nav>
+    <nav><a class="nav-item current" href="#main"><span>↗</span> Your URLs <span class="nav-arrow">→</span></a><a class="nav-item" href="/openapi.yaml"><span>⌘</span> API reference</a></nav>
     <div class="sidebar-bottom"><span class="health-dot" id="health-dot"></span><span id="health">Checking service…</span><small>Built for a clear path forward.</small></div>
   </aside>
   <div class="workspace-main">
-    <header class="topbar"><span>Workspace <span class="slash">/</span> <strong>Your links</strong></span><span class="environment">URL SHORTENER <span class="version">1.0</span></span></header>
+    <header class="topbar"><span>Workspace <span class="slash">/</span> <strong>Your URLs</strong></span><span class="environment">URL SHORTENER <span class="version">1.0</span></span></header>
     <main id="main">
-      <section class="hero"><div class="eyebrow"><span></span> SMALL LINKS. CLEAR INSIGHTS.</div><h1>Make every link count.</h1><p>Create a simpler way to share. See where it leads.</p></section>
+      <section class="hero"><div class="eyebrow"><span></span> SHORT URLS. CLEAR INSIGHTS.</div><h1>Shorten URLs. Track activity.</h1><p>Create a simpler way to share. See where it leads.</p></section>
       <section class="auth-panel" aria-label="Connect to your workspace">
-        <div><strong id="connection-title">Connect your workspace</strong><p id="connection-description">Enter your operator token to manage links. It stays in this tab only.</p></div>
+        <div><strong id="connection-title">Connect your workspace</strong><p id="connection-description">Enter your operator token to manage URLs. It stays in this tab only.</p></div>
         <form id="connect-form"><label class="sr-only" for="token">Operator API token</label><input id="token" type="password" autocomplete="off" placeholder="Operator token" required><button class="button secondary" type="submit">Connect <span>→</span></button></form>
         <button id="disconnect" class="button secondary hidden" type="button">Disconnect</button>
       </section>
       <div id="notice" class="notice hidden" role="status" aria-live="polite"></div>
       <div class="columns">
-        <section class="panel create-panel"><div class="panel-heading"><span class="step-icon">↗</span><div><h2>Create a short link</h2><p>A destination. A name. Ready to share.</p></div></div>
+        <section class="panel create-panel"><div class="panel-heading"><span class="step-icon">↗</span><div><h2>Create a short URL</h2><p>A destination. A name. Ready to share.</p></div></div>
           <form id="create-form">
             <label for="destination">Destination URL <span class="required">*</span></label><input id="destination" type="url" maxlength="2048" placeholder="https://example.com/your-next-idea" required>
-            <label for="title">Title <span class="optional">optional</span></label><input id="title" maxlength="120" placeholder="Give this link a memorable name">
-            <label for="alias">Custom alias <span class="optional">optional</span></label><div class="prefix-input"><span>/s/</span><input id="alias" pattern="[A-Za-z0-9_-]{4,32}" maxlength="32" placeholder="your-link" aria-describedby="alias-help"></div><small id="alias-help" class="help">4–32 letters, numbers, dashes or underscores.</small>
+            <label for="title">Title <span class="optional">optional</span></label><input id="title" maxlength="120" placeholder="Give this URL a memorable title">
+            <label for="alias">Custom alias <span class="optional">optional</span></label><div class="prefix-input"><span>/s/</span><input id="alias" pattern="[A-Za-z0-9_-]{4,32}" maxlength="32" placeholder="your-alias" aria-describedby="alias-help"></div><small id="alias-help" class="help">4–32 letters, numbers, dashes or underscores.</small>
             <label for="expiry">Expires on <span class="optional">optional</span></label><input id="expiry" type="datetime-local" aria-describedby="expiry-help"><small id="expiry-help" class="help">Your local time. Leave blank for no expiration.</small>
-            <button id="create-button" class="button primary" type="submit" disabled>Create short link <span>↗</span></button>
+            <button id="create-button" class="button primary" type="submit" disabled>Create short URL <span>↗</span></button>
           </form>
           <div class="form-note"><span>◇</span><p>Your destination stays intact, including query parameters and fragments.</p></div>
         </section>
-        <section class="panel links-panel"><div class="list-heading"><div><h2>Your links <span id="total" class="count">—</span></h2><p>All your destinations, in one place.</p></div><button id="refresh" class="icon-button" type="button" title="Refresh links" aria-label="Refresh links" disabled>↻</button></div>
-          <div id="empty" class="empty"><div class="empty-symbol">↗</div><h3>A little link. A lot of possibility.</h3><p>Connect your workspace to create your first link<br>or pick up where you left off.</p></div>
-          <div id="link-list" class="link-list" aria-live="polite"></div>
+        <section class="panel urls-panel"><div class="list-heading"><div><h2>Your URLs <span id="total" class="count">—</span></h2><p>All your destinations, in one place.</p></div><button id="refresh" class="icon-button" type="button" title="Refresh URLs" aria-label="Refresh URLs" disabled>↻</button></div>
+          <div id="empty" class="empty"><div class="empty-symbol">↗</div><h3>Your short URLs start here.</h3><p>Connect your workspace to create your first URL<br>or pick up where you left off.</p></div>
+          <div id="url-list" class="url-list" aria-live="polite"></div>
           <div class="pagination hidden" id="pagination"><button id="previous" class="button plain" type="button">← Previous</button><span id="page-label"></span><button id="next" class="button plain" type="button">Next →</button></div>
           <div class="list-footer"><span class="tiny-dot"></span>Full URLs preserved. Changes saved automatically.</div>
         </section>
       </div>
-      <section id="analytics" class="panel analytics-panel hidden" aria-labelledby="analytics-title"><div class="list-heading"><div><div class="eyebrow">LINK INSIGHTS</div><h2 id="analytics-title">Link analytics</h2></div><button id="close-stats" class="icon-button" type="button" aria-label="Close analytics">×</button></div><div class="analytics-body"><div class="metric"><span id="click-count">0</span><p>Lifetime resolutions</p><small>GET requests, including bots and repeats.<br>HEAD requests are excluded.</small></div><div class="chart-wrap"><p class="chart-label">Last 30 days · UTC</p><svg id="chart" role="img" aria-label="Daily resolutions over the last 30 UTC days" viewBox="0 0 640 140"></svg><div class="chart-axis"><span id="chart-start"></span><span id="chart-end"></span></div><details><summary>View daily counts</summary><table><thead><tr><th>Date (UTC)</th><th>Resolutions</th></tr></thead><tbody id="daily-table"></tbody></table></details></div></div></section>
-      <footer class="page-footer"><span>Shorter links. Thoughtful engineering.</span><span>URL Shortener © 2026</span></footer>
+      <section id="analytics" class="panel analytics-panel hidden" aria-labelledby="analytics-title"><div class="list-heading"><div><div class="eyebrow">URL INSIGHTS</div><h2 id="analytics-title">URL analytics</h2></div><button id="close-stats" class="icon-button" type="button" aria-label="Close analytics">×</button></div><div class="analytics-body"><div class="metric"><span id="click-count">0</span><p>Lifetime resolutions</p><small>GET requests, including bots and repeats.<br>HEAD requests are excluded.</small></div><div class="chart-wrap"><p class="chart-label">Last 30 days · UTC</p><svg id="chart" role="img" aria-label="Daily resolutions over the last 30 UTC days" viewBox="0 0 640 140"></svg><div class="chart-axis"><span id="chart-start"></span><span id="chart-end"></span></div><details><summary>View daily counts</summary><table><thead><tr><th>Date (UTC)</th><th>Resolutions</th></tr></thead><tbody id="daily-table"></tbody></table></details></div></div></section>
+      <footer class="page-footer"><span>Short URLs. Clear analytics.</span><span>URL Shortener © 2026</span></footer>
     </main>
   </div>
 </body>

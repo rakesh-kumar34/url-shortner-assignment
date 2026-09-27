@@ -6,8 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 
-public interface LinkRepository extends JpaRepository<Link, String> {
+public interface UrlRepository extends JpaRepository<ShortUrl, String> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select link from Link link where link.code = :code")
-    Optional<Link> findLocked(String code);
+    @Query("select url from ShortUrl url where url.code = :code")
+    Optional<ShortUrl> findLocked(String code);
 }

@@ -7,10 +7,10 @@ flowchart TD
     Browser["Web console / API client"] --> Guard["Request limits and bearer authentication"]
     Visitor["Short-link visitor"] --> Guard
     Guard --> API["Spring MVC controllers"]
-    API --> Service["LinkService: lifecycle and retry policy"]
+    API --> Service["UrlService: lifecycle and retry policy"]
     Service --> Policy["URL policy and SecureRandom codes"]
     Service --> Tx["Database transaction"]
-    Tx --> Links["Links and tombstones"]
+    Tx --> Urls["URLs and tombstones"]
     Tx --> Daily["Daily aggregates"]
     Tx --> Keys["Idempotency keys"]
 ```

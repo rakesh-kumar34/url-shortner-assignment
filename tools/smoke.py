@@ -29,16 +29,16 @@ def request(method, path, body=None, key=None):
     return response.status, response.headers, json.loads(data) if data and response.headers.get_content_type() == "application/json" else None
 
 key = str(uuid.uuid4())
-status, _, link = request("POST", "/api/links", {"url": "https://example.com/docs?q=demo#intro", "title": "Smoke test"}, key)
+status, _, link = request("POST", "/api/urls", {"url": "https://example.com/docs?q=demo#intro", "title": "Smoke test"}, key)
 assert status == 201, (status, link)
 code = link["code"]
-status, _, replay = request("POST", "/api/links", {"url": "https://example.com/docs?q=demo#intro", "title": "Smoke test"}, key)
+status, _, replay = request("POST", "/api/urls", {"url": "https://example.com/docs?q=demo#intro", "title": "Smoke test"}, key)
 assert status == 200 and replay["code"] == code
 status, headers, _ = request("GET", "/s/" + code)
 assert status == 302 and headers["Location"] == "https://example.com/docs?q=demo#intro"
 assert request("HEAD", "/s/" + code)[0] == 302
-status, _, stats = request("GET", f"/api/links/{code}/stats")
+status, _, stats = request("GET", f"/api/urls/{code}/stats")
 assert status == 200 and stats["totalClicks"] == 1 and len(stats["daily"]) == 30
-assert request("DELETE", "/api/links/" + code)[0] == 204
+assert request("DELETE", "/api/urls/" + code)[0] == 204
 assert request("GET", "/s/" + code)[0] == 410
 print("PASS: create, durable retry, redirect, HEAD exclusion, analytics, disable, 410")

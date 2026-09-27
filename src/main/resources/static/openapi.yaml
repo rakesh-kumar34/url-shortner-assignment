@@ -10,10 +10,10 @@ servers:
 security:
   - bearerAuth: []
 paths:
-  /api/links:
+  /api/urls:
     post:
-      operationId: createLink
-      summary: Create a short link
+      operationId: createUrl
+      summary: Create a short URL
       description: >-
         Matching Idempotency-Key retries return the same resource's current state
         with 200. Different payloads with the same key return 409. Keys persist for
@@ -26,7 +26,7 @@ paths:
         required: true
         content:
           application/json:
-            schema: {$ref: '#/components/schemas/CreateLink'}
+            schema: {$ref: '#/components/schemas/CreateUrl'}
       responses:
         '201':
           description: Created
@@ -34,12 +34,12 @@ paths:
             Location: {description: Management URL for the new resource, schema: {type: string}}
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/Link'}
+              schema: {$ref: '#/components/schemas/ShortUrl'}
         '200':
           description: Replayed creation
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/Link'}
+              schema: {$ref: '#/components/schemas/ShortUrl'}
         '400': {$ref: '#/components/responses/InvalidJson'}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '409': {description: Alias or idempotency conflict, content: {application/json: {schema: {$ref: '#/components/schemas/Error'}}}}
@@ -49,8 +49,8 @@ paths:
         '429': {$ref: '#/components/responses/RateLimited'}
         '503': {$ref: '#/components/responses/Unavailable'}
     get:
-      operationId: listLinks
-      summary: List links, newest first
+      operationId: listUrls
+      summary: List URLs, newest first
       parameters:
         - in: query
           name: page
@@ -60,40 +60,43 @@ paths:
           schema: {type: integer, minimum: 1, maximum: 100, default: 20}
       responses:
         '200':
-          description: Page of links, including expired and disabled links
+          description: Page of URLs, including expired and disabled URLs
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  items: {type: array, items: {$ref: '#/components/schemas/Link'}}
+                  items: {type: array, items: {$ref: '#/components/schemas/ShortUrl'}}
                   total: {type: integer, format: int64}
                   page: {type: integer}
                   size: {type: integer}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '422': {$ref: '#/components/responses/Validation'}
         '429': {$ref: '#/components/responses/RateLimited'}
-  /api/links/{code}:
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /api/urls/{code}:
     parameters:
       - {$ref: '#/components/parameters/Code'}
     get:
-      operationId: getLink
-      summary: Inspect a link
+      operationId: getUrl
+      summary: Inspect a URL
       responses:
-        '200': {description: Link metadata, content: {application/json: {schema: {$ref: '#/components/schemas/Link'}}}}
+        '200': {description: URL metadata, content: {application/json: {schema: {$ref: '#/components/schemas/ShortUrl'}}}}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '404': {$ref: '#/components/responses/NotFound'}
         '429': {$ref: '#/components/responses/RateLimited'}
+        '503': {$ref: '#/components/responses/Unavailable'}
     delete:
-      operationId: disableLink
-      summary: Soft-disable a link
+      operationId: disableUrl
+      summary: Soft-disable a URL
       description: Repeated disable requests return 204. The code and its history remain reserved.
       responses:
         '204': {description: Disabled, or already disabled}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '404': {$ref: '#/components/responses/NotFound'}
         '429': {$ref: '#/components/responses/RateLimited'}
-  /api/links/{code}/stats:
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /api/urls/{code}/stats:
     parameters:
       - {$ref: '#/components/parameters/Code'}
     get:
@@ -127,7 +130,7 @@ paths:
     parameters:
       - {$ref: '#/components/parameters/Code'}
     get:
-      operationId: resolveLink
+      operationId: resolveUrl
       security: []
       summary: Resolve and count a link
       responses:
@@ -171,7 +174,7 @@ components:
       required: true
       schema: {type: string, pattern: '^[A-Za-z0-9_-]{4,32}$'}
   schemas:
-    CreateLink:
+    CreateUrl:
       type: object
       additionalProperties: false
       required: [url]
@@ -184,7 +187,7 @@ components:
           format: date-time
           nullable: true
           description: Absolute future timestamp, at most 365 days from creation, with at most six fractional second digits. Null means no expiry.
-    Link:
+    ShortUrl:
       type: object
       properties:
         code: {type: string}

@@ -9,10 +9,10 @@ Use Spring MVC, Spring Data JPA, PostgreSQL, Flyway and Maven. Use H2 in Postgre
 Node.js was initially considered for dependency-free setup; the owner supplied the Java requirement before implementation. Java is now the sole backend. Preserve this decision honestly in the execution record.
 
 ## Component boundaries
-`api/`: controllers and DTOs. `link/`: URL policy and transactional service. `persistence/`: JPA entities/repositories. `config/`: configuration validation, security and rate limits. `resources/db/migration`: additive Flyway schema evolution. `resources/static`: web console. Constructor injection and a Clock bean make time-dependent policy testable.
+`api/`: controllers and DTOs. `service/`: URL policy and transactional service. `persistence/`: JPA entities/repositories. `config/`: configuration validation, security and rate limits. `resources/db/migration`: additive Flyway schema evolution. `resources/static`: web console. Constructor injection and a Clock bean make time-dependent policy testable.
 
 ## API contract
-Management requires a bearer token. Public GET/HEAD `/s/{code}` resolves links. POST `/api/links` accepts url, title, customAlias and expiresAt. Random codes use 72 bits of SecureRandom entropy (12 base64url characters); custom aliases are case-sensitive, 4-32 URL-safe characters. Unknown fields and invalid values are rejected. Duplicate aliases return 409. Duplicate destinations are permitted. List results have bounded page sizes. GET `/api/links/{code}/stats` returns lifetime total and zero-filled UTC buckets for the last 30 days.
+Management requires a bearer token. Public GET/HEAD `/s/{code}` resolves links. POST `/api/urls` accepts url, title, customAlias and expiresAt. Random codes use 72 bits of SecureRandom entropy (12 base64url characters); custom aliases are case-sensitive, 4-32 URL-safe characters. Unknown fields and invalid values are rejected. Duplicate aliases return 409. Duplicate destinations are permitted. List results have bounded page sizes. GET `/api/urls/{code}/stats` returns lifetime total and zero-filled UTC buckets for the last 30 days.
 
 Expiry is an absolute timestamp, future and at most 365 days ahead. DELETE is an idempotent soft-disable; codes are never recycled. Expired/disabled redirects return 410; missing links return 404. Redirects use 302 and no-store. HEAD does not increment clicks. Analytics count committed GET resolutions including bots/repeats, not unique people or proof of visits. No visitor IP, agent, referrer or raw click event is stored.
 

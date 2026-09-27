@@ -4,7 +4,17 @@ let token = '';
 let page = 0;
 let lastTotal = 0;
 let pendingCreation = null;
+let connectionRequests = new AbortController();
 const pageSize = 5;
+
+function cancelConnectionRequests() {
+  connectionRequests.abort();
+  connectionRequests = new AbortController();
+}
+
+function reportError(error) {
+  if (error.name !== 'AbortError') notice(error.message, true);
+}
 
 function notice(message, error = false) {
   $('notice').textContent = message;
@@ -12,15 +22,18 @@ function notice(message, error = false) {
 }
 
 async function api(path, options = {}) {
+  const signal = connectionRequests.signal;
   const response = await fetch(path, {
     ...options,
+    signal,
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
   });
+  const body = response.status === 204 ? null : await response.json().catch(() => ({}));
+  if (signal.aborted) throw new DOMException('Request cancelled', 'AbortError');
   if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
     throw new Error(body.message || `Request failed (${response.status}). Please try again.`);
   }
-  return response.status === 204 ? null : response.json();
+  return body;
 }
 
 function element(tag, className, text) {
@@ -36,42 +49,42 @@ function setConnected(connected) {
   $('connection-title').textContent = connected ? 'Workspace connected' : 'Connect your workspace';
   $('connection-description').textContent = connected
     ? 'Your token is held in memory and cleared when you disconnect or close this tab.'
-    : 'Enter your operator token to manage links. It stays in this tab only.';
+    : 'Enter your operator token to manage URLs. It stays in this tab only.';
   $('create-button').disabled = !connected;
   $('refresh').disabled = !connected;
 }
 
-function linkRow(link) {
-  const row = element('article', 'link-row');
-  const top = element('div', 'link-top');
-  top.append(element('span', 'link-title', link.title || link.code),
-    element('span', `badge${link.status === 'ACTIVE' ? '' : ' inactive'}`, link.status));
-  const destination = element('span', 'destination', link.url);
-  destination.title = link.url;
-  const short = element('a', 'short-link', link.shortUrl);
-  short.href = link.shortUrl;
+function urlRow(url) {
+  const row = element('article', 'url-row');
+  const top = element('div', 'url-top');
+  top.append(element('span', 'url-title', url.title || url.code),
+    element('span', `badge${url.status === 'ACTIVE' ? '' : ' inactive'}`, url.status));
+  const destination = element('span', 'destination', url.url);
+  destination.title = url.url;
+  const short = element('a', 'short-url', url.shortUrl);
+  short.href = url.shortUrl;
   short.target = '_blank';
   short.rel = 'noopener noreferrer';
-  const actions = element('div', 'link-actions');
-  const copy = element('button', '', 'Copy link');
+  const actions = element('div', 'url-actions');
+  const copy = element('button', '', 'Copy URL');
   copy.type = 'button';
   copy.addEventListener('click', async () => {
-    try { await navigator.clipboard.writeText(link.shortUrl); notice('Short link copied.'); }
-    catch { notice(`Copy this link: ${link.shortUrl}`); }
+    try { await navigator.clipboard.writeText(url.shortUrl); notice('Short URL copied.'); }
+    catch { notice(`Copy this URL: ${url.shortUrl}`); }
   });
   const stats = element('button', '', 'View insights');
   stats.type = 'button';
-  stats.addEventListener('click', () => showStats(link));
+  stats.addEventListener('click', () => showStats(url));
   const disable = element('button', 'disable', 'Disable');
   disable.type = 'button';
-  disable.disabled = link.status !== 'ACTIVE';
+  disable.disabled = url.status !== 'ACTIVE';
   disable.addEventListener('click', async () => {
-    if (!window.confirm(`Disable ${link.title || link.code}? This link will stop redirecting.`)) return;
+    if (!window.confirm(`Disable ${url.title || url.code}? This URL will stop redirecting.`)) return;
     disable.disabled = true;
-    try { await api(`/api/links/${encodeURIComponent(link.code)}`, { method: 'DELETE' }); await refresh(); notice('Link disabled. Its history is preserved.'); }
-    catch (error) { disable.disabled = false; notice(error.message, true); }
+    try { await api(`/api/urls/${encodeURIComponent(url.code)}`, { method: 'DELETE' }); await refresh(); notice('URL disabled. Its history is preserved.'); }
+    catch (error) { disable.disabled = false; reportError(error); }
   });
-  actions.append(copy, stats, element('span', 'link-clicks', `${link.totalClicks} resolutions`), disable);
+  actions.append(copy, stats, element('span', 'url-clicks', `${url.totalClicks} resolutions`), disable);
   row.append(top, destination, short, actions);
   return row;
 }
@@ -79,12 +92,12 @@ function linkRow(link) {
 async function refresh() {
   $('refresh').disabled = true;
   try {
-    const data = await api(`/api/links?page=${page}&size=${pageSize}`);
+    const data = await api(`/api/urls?page=${page}&size=${pageSize}`);
     lastTotal = data.total;
     $('total').textContent = String(data.total);
-    $('link-list').replaceChildren(...data.items.map(linkRow));
+    $('url-list').replaceChildren(...data.items.map(urlRow));
     $('empty').classList.toggle('hidden', data.items.length > 0);
-    if (data.items.length === 0) $('empty').querySelector('p').textContent = 'Create a link to start sharing. Your saved links will appear here.';
+    if (data.items.length === 0) $('empty').querySelector('p').textContent = 'Create a URL to start sharing. Your saved URLs will appear here.';
     $('pagination').classList.toggle('hidden', data.total <= pageSize);
     $('page-label').textContent = `Page ${page + 1} of ${Math.max(1, Math.ceil(data.total / pageSize))}`;
     $('previous').disabled = page === 0;
@@ -94,16 +107,21 @@ async function refresh() {
 
 $('connect-form').addEventListener('submit', async event => {
   event.preventDefault();
+  cancelConnectionRequests();
   token = $('token').value.trim();
-  try { page = 0; await refresh(); setConnected(true); $('token').value = ''; notice('Connected. Your links are ready.'); }
-  catch (error) { token = ''; setConnected(false); notice(error.message, true); }
+  try { page = 0; await refresh(); setConnected(true); $('token').value = ''; notice('Connected. Your URLs are ready.'); }
+  catch (error) {
+    if (error.name === 'AbortError') return;
+    token = ''; setConnected(false); reportError(error);
+  }
 });
 
 $('disconnect').addEventListener('click', () => {
+  cancelConnectionRequests();
   token = '';
   pendingCreation = null;
   setConnected(false);
-  $('link-list').replaceChildren();
+  $('url-list').replaceChildren();
   $('analytics').classList.add('hidden');
   $('pagination').classList.add('hidden');
   $('empty').classList.remove('hidden');
@@ -121,25 +139,25 @@ $('create-form').addEventListener('submit', async event => {
   $('create-button').disabled = true;
   $('create-button').textContent = 'Creating…';
   try {
-    const link = await api('/api/links', { method: 'POST', body, headers: { 'Idempotency-Key': pendingCreation.key } });
+    const url = await api('/api/urls', { method: 'POST', body, headers: { 'Idempotency-Key': pendingCreation.key } });
     pendingCreation = null;
     $('create-form').reset();
     page = 0;
     await refresh();
-    notice(`Ready to share: ${link.shortUrl}`);
-  } catch (error) { notice(error.message, true); }
-  finally { $('create-button').disabled = !token; $('create-button').textContent = 'Create short link ↗'; }
+    notice(`Ready to share: ${url.shortUrl}`);
+  } catch (error) { reportError(error); }
+  finally { $('create-button').disabled = !token; $('create-button').textContent = 'Create short URL ↗'; }
 });
 
-$('refresh').addEventListener('click', () => refresh().catch(error => notice(error.message, true)));
-$('previous').addEventListener('click', () => { if (page > 0) page--; refresh().catch(error => notice(error.message, true)); });
-$('next').addEventListener('click', () => { if ((page + 1) * pageSize < lastTotal) page++; refresh().catch(error => notice(error.message, true)); });
+$('refresh').addEventListener('click', () => refresh().catch(reportError));
+$('previous').addEventListener('click', () => { if (page > 0) page--; refresh().catch(reportError); });
+$('next').addEventListener('click', () => { if ((page + 1) * pageSize < lastTotal) page++; refresh().catch(reportError); });
 $('close-stats').addEventListener('click', () => $('analytics').classList.add('hidden'));
 
-async function showStats(link) {
+async function showStats(url) {
   try {
-    const data = await api(`/api/links/${encodeURIComponent(link.code)}/stats`);
-    $('analytics-title').textContent = link.title || link.code;
+    const data = await api(`/api/urls/${encodeURIComponent(url.code)}/stats`);
+    $('analytics-title').textContent = url.title || url.code;
     $('click-count').textContent = data.totalClicks.toLocaleString();
     const svg = $('chart');
     svg.replaceChildren();
@@ -164,7 +182,7 @@ async function showStats(link) {
     }));
     $('analytics').classList.remove('hidden');
     $('analytics').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  } catch (error) { notice(error.message, true); }
+  } catch (error) { reportError(error); }
 }
 
 fetch('/actuator/health/readiness').then(response => {

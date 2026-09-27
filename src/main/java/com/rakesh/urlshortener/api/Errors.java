@@ -4,6 +4,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.transaction.CannotCreateTransactionException;
+import org.springframework.transaction.TransactionSystemException;
+import org.springframework.transaction.TransactionTimedOutException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -26,7 +29,8 @@ public class Errors {
         return response(422, "validation_error", "One or more fields are invalid", request);
     }
 
-    @ExceptionHandler(DataAccessException.class)
+    @ExceptionHandler({DataAccessException.class, CannotCreateTransactionException.class,
+            TransactionSystemException.class, TransactionTimedOutException.class})
     ResponseEntity<ApiError> database(HttpServletRequest request) {
         return ResponseEntity.status(503).header("Retry-After", "1")
                 .body(new ApiError("storage_unavailable", "Storage temporarily unavailable", id(request)));

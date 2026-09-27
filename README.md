@@ -20,7 +20,7 @@ On Windows, use `mvnw.cmd spring-boot:run`. Open [http://localhost:8080](http://
 local-demo-token-change-before-deployment
 ```
 
-This token comes from `src/main/resources/application-local.yaml`. The default `local` profile uses a persistent H2 file under `./data/shortline`; links survive a normal restart. Set `API_TOKEN` to override the demo token. H2 is the convenient demo database; PostgreSQL is the intended deployment database.
+This token comes from `src/main/resources/application-local.yaml`. The default `local` profile uses a persistent H2 file under `./data/url-shortener`; links survive a normal restart. Set `API_TOKEN` to override the demo token. H2 is the convenient demo database; PostgreSQL is the intended deployment database.
 
 ## Run with PostgreSQL and Docker Compose
 
@@ -45,7 +45,7 @@ With the local server running:
 export API_TOKEN='local-demo-token-change-before-deployment'
 
 # Create: 201 initially, 200 for an identical retry with this key.
-curl -i http://localhost:8080/api/links \
+curl -i http://localhost:8080/api/urls \
   -H "Authorization: Bearer $API_TOKEN" \
   -H 'Content-Type: application/json' \
   -H 'Idempotency-Key: readme-example-v1' \
@@ -57,11 +57,11 @@ curl -i http://localhost:8080/s/docs-demo
 # Public HEAD resolves without incrementing analytics.
 curl -I http://localhost:8080/s/docs-demo
 
-curl http://localhost:8080/api/links/docs-demo/stats \
+curl http://localhost:8080/api/urls/docs-demo/stats \
   -H "Authorization: Bearer $API_TOKEN"
 
 # Soft-disable: 204. Subsequent redirects return 410.
-curl -i -X DELETE http://localhost:8080/api/links/docs-demo \
+curl -i -X DELETE http://localhost:8080/api/urls/docs-demo \
   -H "Authorization: Bearer $API_TOKEN"
 ```
 
@@ -69,14 +69,16 @@ Use the configured token for Compose. The example alias remains reserved after d
 
 | Endpoint | Access | Behavior |
 | --- | --- | --- |
-| `POST /api/links` | Bearer token | Create; optional title, alias, expiry and `Idempotency-Key` |
-| `GET /api/links?page=0&size=20` | Bearer token | List; size 1–100 |
-| `GET /api/links/{code}` | Bearer token | Inspect destination, state and lifetime count |
-| `GET /api/links/{code}/stats` | Bearer token | Lifetime count and 30 zero-filled UTC days |
-| `DELETE /api/links/{code}` | Bearer token | Idempotent soft-disable |
+| `POST /api/urls` | Bearer token | Create; optional title, alias, expiry and `Idempotency-Key` |
+| `GET /api/urls?page=0&size=20` | Bearer token | List; size 1–100 |
+| `GET /api/urls/{code}` | Bearer token | Inspect destination, state and lifetime count |
+| `GET /api/urls/{code}/stats` | Bearer token | Lifetime count and 30 zero-filled UTC days |
+| `DELETE /api/urls/{code}` | Bearer token | Idempotent soft-disable |
 | `GET /s/{code}` | Public | 302 plus `Cache-Control: no-store`; records one resolution |
 | `HEAD /s/{code}` | Public | Same lifecycle checks; records no resolution |
 | `GET /actuator/health/readiness` | Public | Readiness including database availability |
+
+The canonical management route is `/api/urls`; earlier `/api/links` routes remain compatibility aliases.
 
 See the [OpenAPI contract](src/main/resources/static/openapi.yaml), also served at `/openapi.yaml`.
 
@@ -105,6 +107,11 @@ python3 tools/benchmark.py
 # Resolve and audit runtime dependencies against OSV:
 ./mvnw -B dependency:tree -DoutputFile=target/dependencies.txt
 python3 tools/audit_dependencies.py
+
+# Against a disposable running server:
+python3 -m pip install -r tools/requirements-browser.txt
+python3 -m playwright install chromium
+python3 tools/browser_smoke.py
 ```
 
 `verify` runs Checkstyle, Java-version enforcement, tests, packaging and JaCoCo reporting. `verify_runtime.py` starts the packaged JAR with a temporary H2 database, exercises HTTP behavior, restarts the process and checks persistent retry behavior and log redaction. The benchmark makes 100 requests at concurrency eight and verifies the final count; it is a local measurement, not a capacity guarantee. The standalone smoke and benchmark tools accept `BASE_URL` and `API_TOKEN` environment variables.
@@ -112,21 +119,25 @@ python3 tools/audit_dependencies.py
 To exercise the integration suite against a disposable PostgreSQL database:
 
 ```sh
-export TEST_DATABASE_URL='jdbc:postgresql://localhost:5432/shortline_test'
-export TEST_DATABASE_USER='shortline'
+export TEST_DATABASE_URL='jdbc:postgresql://localhost:5432/url_shortener_test'
+export TEST_DATABASE_USER='url_shortener'
 export TEST_DATABASE_PASSWORD='your-test-password'
 ./mvnw -B test
 ```
 
-The suite writes test data and includes a schema-constraint rollback test; use a dedicated test database. CI is configured to run H2 verification, dependency auditing and PostgreSQL tests. See [actual validation status](docs/VALIDATION.md) for executed checks and remaining gaps.
+The suite writes test data and includes a schema-constraint rollback test; use a dedicated test database. CI runs H2 verification, dependency auditing, PostgreSQL tests, a Docker Compose build and browser smoke checks. See [actual validation status](docs/VALIDATION.md) for executed checks and remaining gaps.
 
 ## Engineering evidence
+
+Start with the [PDF requirement-to-evidence map](docs/REQUIREMENTS.md).
 
 - [Architecture and trade-offs](docs/ARCHITECTURE.md)
 - [Three implementation scenarios and commit traceability](docs/SCENARIOS.md)
 - [AI-assisted execution record](docs/AI_WORK_LOG.md)
+- [Task contracts and quality gates](docs/AI_WORKFLOW.md)
+- [Risk register](docs/RISKS.md)
 - [Validation evidence and limitations](docs/VALIDATION.md)
 - [Delivery summary](docs/FINAL_SUMMARY.md)
 - [Human review checklist](docs/REVIEW_CHECKLIST.md)
 
-Human submission sign-off and production approval are pending.
+Technical evidence and the remaining candidate acceptance step are recorded in [the review checklist](docs/REVIEW_CHECKLIST.md).

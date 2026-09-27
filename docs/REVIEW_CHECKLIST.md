@@ -1,33 +1,33 @@
-# Human review and acceptance
+# Review and acceptance
 
-The implementation and evidence are prepared for review. The unchecked items below are intentionally pending; AI assistance does not constitute engineer approval.
+Technical checks and candidate acceptance are recorded separately. Completed automated checks do not constitute candidate sign-off.
 
-## Submission review
+## Completed technical review
 
-- [ ] Run the README quick start on JDK 17 and review the browser create/list/analytics/disable flow.
-- [ ] Confirm the final 34-case verification and dependency audit; reconcile results with [VALIDATION.md](VALIDATION.md).
-- [ ] Run the integration suite on PostgreSQL and exercise Docker Compose.
-- [ ] Review desktop/mobile layout, keyboard navigation, token handling and error states in a real browser.
-- [ ] Inspect the three scenario commits and explain the migration, transaction and retry decisions without relying on generated prose.
-- [ ] Confirm that the repository contains no credentials, customer URLs, private assignment PDF or reference implementation code.
-- [ ] Verify the published repository URL, access and CI status, then record the submission decision below.
+- [x] Map the eight PDF requirements and five deliverables to inspectable artifacts in [REQUIREMENTS.md](REQUIREMENTS.md).
+- [x] Compare the reference repository structure and AI workflow; retain original code and project-specific decisions.
+- [x] Use consistent URL Shortener terminology, Java domain names and standard documentation folders; document compatibility exceptions.
+- [x] Run a clean JDK 17 verification: 36 cases, zero failures/errors/skips and zero Checkstyle violations.
+- [x] Audit 100 runtime dependency coordinates: no current OSV findings.
+- [x] Exercise the packaged JAR, restart persistence, durable retries, request-log redaction and a bounded local benchmark.
+- [x] Re-review the request-boundary, storage-error and disconnect fixes; no remaining critical or important code-review findings.
+- [ ] Record the final published PostgreSQL, Docker Compose and desktop/mobile browser CI results in [VALIDATION.md](VALIDATION.md).
 
-## Design acceptance
+## Candidate acceptance before submission
 
-- [ ] Accept one shared operator token for this prototype and the boundary between public redirects and authenticated management.
-- [ ] Accept URL-policy limits: no destination fetch or reputation scanning, and no guarantee against DNS changes or harmful public destinations.
-- [ ] Accept counts as committed GET resolutions, with HEAD excluded, UTC days, and no unique-visitor claim.
-- [ ] Accept atomic counting on the redirect path, database row-lock contention and 503 when storage cannot commit.
-- [ ] Accept durable retry keys, current-state replays, non-reusable aliases and retained tombstones.
-- [ ] Review the V1–V3 migrations and establish backup/recovery and rollback procedures before any real deployment.
+- [ ] Run or observe the demo and review the API and browser behavior.
+- [ ] Review the three scenario commits and explain the migration, transaction and retry decisions.
+- [ ] Accept the documented prototype choices: one operator token, process-local limits, committed GET counts, permanent aliases and retained tombstones.
+- [ ] Review AI-assisted changes, confirm repository contents and record the submission decision below.
 
 ## Sign-off record
 
 | Field | Value |
 | --- | --- |
-| Reviewing engineer | Pending |
+| Reviewing candidate | Pending |
 | Reviewed commit | Pending |
 | Review date | Pending |
 | Submission decision / exceptions | Pending |
-| Public repository URL | [https://github.com/rakesh-kumar34/url-shortner-assignment](https://github.com/rakesh-kumar34/url-shortner-assignment) |
-| Production deployment approval | Not granted; separate review required |
+| Public repository URL | [rakesh-kumar34/url-shortner-assignment](https://github.com/rakesh-kumar34/url-shortner-assignment) |
+
+Before production use, separately review authentication, abuse handling, deployment, backups/recovery and sustained load requirements. This interview prototype does not claim production approval.

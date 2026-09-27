@@ -7,7 +7,7 @@ This is a record of this build session, not a fabricated multi-day diary. Codex 
 - Owner supplied a URL-shortener engineering assignment, a previous candidate's public repository for reference, and a destination GitHub account.
 - Owner subsequently specified the Java role requirements and preferred Java 17 / Spring Boot.
 - The PDF requires a working prototype, architecture, greenfield/brownfield/ambiguous scenarios, task decomposition, disciplined AI use, validation and explicit human ownership. It does not prescribe a language.
-- Only the reference repository's public description and README were inspected. No source code was imported. Its approach informed the list of trade-offs to consider, not the implementation.
+- The reference repository's public README, documentation structure and engineering workflow documents were inspected. No source code was imported. Its approach informed the list of trade-offs to consider, not the implementation.
 - Internal assignment pages, private data and credentials are excluded from this project.
 
 ## Task contracts and actual decisions
@@ -49,3 +49,7 @@ The assistant can prepare code and checks. The engineer must approve security po
 
 - Fresh code review identified Unicode URL expansion beyond the database column limit. A regression test reproduced a wrong 503, and the fix validates the encoded URL before storage and recognizes only SQLSTATE 23505 as a collision. Precision finer than PostgreSQL microseconds is rejected explicitly. Driver diagnostic loggers are disabled because they can print bound data; structured request outcomes remain available.
 - The dependency audit found three Tomcat 11.0.24 advisories in the Spring Boot BOM. The project overrides the complete Tomcat dependency family to 11.0.25; the subsequent audit result is recorded in VALIDATION.md.
+
+## Submission review follow-up
+
+The final pass added the PDF requirement map, explicit task contracts and a risk register; reproduced and fixed encoded-path admission and transaction-start error handling; added disconnect cancellation and automated Docker/browser verification; and standardized source/API terminology on URL. See [AI_WORKFLOW.md](AI_WORKFLOW.md) and [VALIDATION.md](VALIDATION.md).

@@ -23,7 +23,7 @@ env = dict(os.environ, BASE_URL=origin, PUBLIC_ORIGIN=origin,
 opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
 def create():
-    request = urllib.request.Request(origin + "/api/links", data=b'{"url":"https://example.com/restart"}',
+    request = urllib.request.Request(origin + "/api/urls", data=b'{"url":"https://example.com/restart"}',
                                      headers={"Authorization": "Bearer " + env["API_TOKEN"],
                                               "Idempotency-Key": "restart-proof", "Content-Type": "application/json"})
     with opener.open(request, timeout=10) as response:

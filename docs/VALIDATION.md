@@ -11,7 +11,7 @@ Evidence recorded on 2026-09-27. Results distinguish completed runs from checks 
 | Retry/hardening | 31 cases passed; no failures, errors or skips | Reliability and limiter tests added; commit `ec57f00` |
 | Pre-review `verify` | Build succeeded with 31 passing cases and JaCoCo report generation | Maven verification log and generated reports |
 | Review regression run | Three cases ran: two failed as expected before fixes; collision retry case passed | `ReviewRegressionTest` |
-| Final `verify` | **Build succeeded: 34 cases, zero failures/errors/skips; zero Checkstyle violations** | Fresh verification output and Surefire reports after the review fixes and Tomcat update |
+| Final `verify` | **Build succeeded: 36 cases, zero failures/errors/skips; zero Checkstyle violations** | Fresh clean verification after the request-boundary, storage-error and naming fixes |
 | Final dependency audit | 100 resolved runtime packages checked; no OSV findings | `target/dependency-audit.json` |
 | Packaged runtime | HTTP smoke, actual process restart/replay and targeted log-redaction assertions passed | `python3 tools/verify_runtime.py` |
 
@@ -24,7 +24,11 @@ The initial brownfield tests observed five failures and two errors because the l
 3. **Collision behavior.** A regression test forces a random-code collision and verifies fresh-transaction retry plus bounded exhaustion. This case passed in the initial review regression run.
 4. **Dependency findings.** An OSV scan of 100 resolved runtime coordinates reported three advisory IDs against `tomcat-embed-core:11.0.24`: `GHSA-9xv2-5v5q-p794`, `GHSA-gcx9-497g-6cp6` and `GHSA-h3x4-894j-xpx5`. The POM now pins Tomcat 11.0.25. Fresh dependency resolution and a final scan of 100 runtime packages returned no findings. This is a point-in-time advisory result, not a guarantee that dependencies contain no vulnerabilities.
 
-All three review regression cases passed in the final suite.
+5. **Encoded management/redirect paths.** A real HTTP request to an encoded route could bypass body and rate-limit classification. The guard now classifies decoded Spring path segments. `RequestBoundaryIntegrationTest` verifies encoded and canonical routes share limits.
+6. **Database transaction startup.** Storage failures before a transaction opened were not mapped to the documented 503 response. `StorageFailureTest` now verifies the safe response, retry hint and correlation ID without leaking database details.
+7. **Disconnect race.** In-flight browser requests are cancelled and checked before rendering, preventing a delayed private response from restoring data after disconnect. The browser smoke covers this behavior.
+
+The five focused review regression cases passed in the final suite. The two new request/storage regressions first produced one failure and one error before their fixes, then passed.
 
 ## Coverage of the test suite
 
@@ -36,13 +40,13 @@ All three review regression cases passed in the final suite.
 | Persistence | Populated V1 migration preserves links and lifetime counts; failed daily write rolls back total count |
 | Concurrency | Parallel redirects retain counts; simultaneous matching idempotency keys create one resource |
 | Retry semantics | Matching replay, changed-payload conflict, replay after expiry, random collision retry/exhaustion |
-| Admission and errors | Monotonic rate-limit window, bounded client state, request correlation IDs |
+| Admission and errors | Monotonic rate-limit window, bounded client state, decoded-path admission, storage-start failures, request correlation IDs |
 
-Tests use real database transactions through Spring/MockMvc rather than replacing repositories with mocks. The populated-V1 migration test uses H2 explicitly; the CI PostgreSQL run exercises the integration tests against PostgreSQL through `TEST_DATABASE_*` configuration.
+Integration tests use real database transactions through Spring/MockMvc and embedded-server HTTP requests. Focused unit tests isolate the limiter and exception response contract. The populated-V1 migration test uses H2 explicitly; the CI PostgreSQL run exercises the integration tests against PostgreSQL through `TEST_DATABASE_*` configuration.
 
 ## Coverage and packaged runtime
 
-JaCoCo recorded **278 of 298 lines covered (93.3%)** and **168 of 244 branches covered (68.9%)**. Coverage identifies unexercised paths; it does not replace behavioral assertions or the outstanding PostgreSQL run.
+JaCoCo recorded **281 of 300 lines covered (93.7%)** and **169 of 244 branches covered (69.3%)**. Coverage identifies unexercised paths; it does not replace behavioral assertions or execution against PostgreSQL.
 
 The packaged application passed create, matching retry, GET redirect, HEAD exclusion, analytics, disable and 410 checks. A real stop/start using the same H2 file retained the link and returned the same idempotent creation result. Runtime-log assertions confirmed that the specific test token and destination URLs were absent from the captured log.
 
@@ -50,22 +54,22 @@ The same local run measured one hot link with 100 requests at concurrency eight:
 
 | Measurement | Result |
 | --- | ---: |
-| Elapsed time | 0.331 s |
-| Throughput | 302.4 requests/s |
-| Median latency | 19.17 ms |
-| 95th-percentile latency | 61.21 ms |
+| Elapsed time | 0.519 s |
+| Throughput | 192.8 requests/s |
+| Median latency | 25.25 ms |
+| 95th-percentile latency | 104.70 ms |
 | Recorded resolutions | 100 / 100 |
 
 This was a short, warm-JVM, single-process H2 measurement with no external destination fetch. It does not establish sustained throughput, PostgreSQL performance, multi-instance behavior or a production SLA.
 
-## Pending or unavailable checks
+## Additional environment checks
 
 | Check | Status / reason |
 | --- | --- |
-| PostgreSQL and Docker Compose | Not executed locally: Docker is unavailable; installing PostgreSQL was blocked by the environment's package-management UID restriction |
+| Docker Compose | New CI job builds the container and tests the PostgreSQL stack; final run pending publication. Docker is unavailable in the editing environment |
 | PostgreSQL CI | Passed in [GitHub Actions run 36294271325](https://github.com/rakesh-kumar34/url-shortner-assignment/actions/runs/36294271325) for delivery commit `aa6965d`; H2 verification and dependency auditing also passed |
-| Browser interaction and responsive visual review | Not completed: browser installation failed while downloading its archive |
-| Human submission review | Pending; no human sign-off claimed |
+| Browser interaction and responsive visual review | New Playwright CI job exercises desktop/mobile flows, invalid tokens, token storage, disconnect cancellation, analytics and disable; final run pending publication |
+| Human submission review | Pending; no candidate sign-off claimed |
 
 ## Reproduce and inspect
 
@@ -74,6 +78,11 @@ This was a short, warm-JVM, single-process H2 measurement with no external desti
 python3 tools/verify_runtime.py
 ./mvnw -B dependency:tree -DoutputFile=target/dependencies.txt
 python3 tools/audit_dependencies.py
+
+# Against a disposable running server (including Docker Compose):
+python3 -m pip install -r tools/requirements-browser.txt
+python3 -m playwright install chromium
+python3 tools/browser_smoke.py
 ```
 
 Inspect `target/surefire-reports/`, `target/site/jacoco/index.html` and `target/dependency-audit.json`. These are generated files and are not committed. `verify_runtime.py` starts the package with a temporary H2 file and runs the smoke, benchmark, restart and redaction checks. To target an already running server instead, run `python3 tools/smoke.py` and `python3 tools/benchmark.py`. The scripts avoid following redirects to external destinations.

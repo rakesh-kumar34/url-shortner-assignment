@@ -1,7 +1,7 @@
 package com.rakesh.urlshortener;
 
-import com.rakesh.urlshortener.api.CreateLinkRequest;
-import com.rakesh.urlshortener.link.LinkService;
+import com.rakesh.urlshortener.api.CreateUrlRequest;
+import com.rakesh.urlshortener.service.UrlService;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Map;
@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ReliabilityIntegrationTest {
     @Autowired MockMvc mvc;
     @Autowired ObjectMapper json;
-    @Autowired LinkService service;
+    @Autowired UrlService service;
     @Autowired TestTime.MutableClock clock;
     @Autowired JdbcTemplate jdbc;
 
@@ -35,14 +35,14 @@ class ReliabilityIntegrationTest {
     @Test void sameKeyReplaysAndChangedPayloadConflicts() throws Exception {
         String key = UUID.randomUUID().toString();
         String body = "{\"url\":\"https://example.com/?a=1\"}";
-        var first = mvc.perform(post("/api/links").header("Authorization", CoreIntegrationTest.AUTH)
+        var first = mvc.perform(post("/api/urls").header("Authorization", CoreIntegrationTest.AUTH)
                 .header("Idempotency-Key", key).contentType("application/json").content(body))
                 .andExpect(status().isCreated()).andReturn();
         String code = json.readTree(first.getResponse().getContentAsString()).get("code").asText();
-        mvc.perform(post("/api/links").header("Authorization", CoreIntegrationTest.AUTH)
+        mvc.perform(post("/api/urls").header("Authorization", CoreIntegrationTest.AUTH)
                 .header("Idempotency-Key", key).contentType("application/json").content(body))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.code").value(code));
-        mvc.perform(post("/api/links").header("Authorization", CoreIntegrationTest.AUTH)
+        mvc.perform(post("/api/urls").header("Authorization", CoreIntegrationTest.AUTH)
                 .header("Idempotency-Key", key).contentType("application/json").content("{\"url\":\"https://example.org\"}"))
                 .andExpect(status().isConflict());
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM idempotency_keys WHERE code = ?", Integer.class, code)).isEqualTo(1);
@@ -51,39 +51,39 @@ class ReliabilityIntegrationTest {
     @Test void successfulCreationCanBeReplayedAfterExpiry() throws Exception {
         String key = UUID.randomUUID().toString();
         String body = json.writeValueAsString(Map.of("url", "https://example.com", "expiresAt", "2030-01-01T12:01:00Z"));
-        mvc.perform(post("/api/links").header("Authorization", CoreIntegrationTest.AUTH).header("Idempotency-Key", key)
+        mvc.perform(post("/api/urls").header("Authorization", CoreIntegrationTest.AUTH).header("Idempotency-Key", key)
                 .contentType("application/json").content(body)).andExpect(status().isCreated());
         clock.set(Instant.parse("2030-01-01T12:01:00Z"));
-        mvc.perform(post("/api/links").header("Authorization", CoreIntegrationTest.AUTH).header("Idempotency-Key", key)
+        mvc.perform(post("/api/urls").header("Authorization", CoreIntegrationTest.AUTH).header("Idempotency-Key", key)
                 .contentType("application/json").content(body)).andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("EXPIRED"));
     }
 
     @Test void simultaneousRetriesCreateExactlyOneResource() throws Exception {
-        var request = new CreateLinkRequest("https://example.com/concurrent", null, null, null);
+        var request = new CreateUrlRequest("https://example.com/concurrent", null, null, null);
         String key = UUID.randomUUID().toString();
         var pool = Executors.newFixedThreadPool(8);
         try {
-            var tasks = new ArrayList<Callable<LinkService.CreateResult>>();
+            var tasks = new ArrayList<Callable<UrlService.CreateResult>>();
             for (int i = 0; i < 20; i++) tasks.add(() -> service.create(request, key));
-            var results = new ArrayList<LinkService.CreateResult>();
+            var results = new ArrayList<UrlService.CreateResult>();
             for (var future : pool.invokeAll(tasks)) results.add(future.get());
-            assertThat(results.stream().map(r -> r.link().code()).distinct().count()).isEqualTo(1);
+            assertThat(results.stream().map(r -> r.url().code()).distinct().count()).isEqualTo(1);
             assertThat(results.stream().filter(r -> !r.replayed()).count()).isEqualTo(1);
         } finally { pool.shutdownNow(); }
     }
 
     @Test void rejectsOversizedBodyAndInvalidIdempotencyKey() throws Exception {
-        mvc.perform(post("/api/links").header("Authorization", CoreIntegrationTest.AUTH).contentType("application/json")
+        mvc.perform(post("/api/urls").header("Authorization", CoreIntegrationTest.AUTH).contentType("application/json")
                 .content("{\"url\":\"" + "a".repeat(9000) + "\"}"))
                 .andExpect(status().isPayloadTooLarge());
-        mvc.perform(post("/api/links").header("Authorization", CoreIntegrationTest.AUTH).header("Idempotency-Key", "bad key")
+        mvc.perform(post("/api/urls").header("Authorization", CoreIntegrationTest.AUTH).header("Idempotency-Key", "bad key")
                 .contentType("application/json").content("{\"url\":\"https://example.com\"}"))
                 .andExpect(status().isUnprocessableEntity());
     }
 
     @Test void errorsIncludeServerGeneratedCorrelationId() throws Exception {
-        var result = mvc.perform(get("/api/links").header("X-Request-ID", "untrusted-client-value"))
+        var result = mvc.perform(get("/api/urls").header("X-Request-ID", "untrusted-client-value"))
                 .andExpect(status().isUnauthorized()).andExpect(header().exists("X-Request-ID")).andReturn();
         String id = result.getResponse().getHeader("X-Request-ID");
         assertThat(id).isNotEqualTo("untrusted-client-value");
@@ -92,7 +92,7 @@ class ReliabilityIntegrationTest {
 
     @Test void legacyNumericIpSpellingsAreRejected() throws Exception {
         for (String url : new String[]{"http://0177.0.0.1", "http://0x7f.0.0.1", "http://127.1"}) {
-            mvc.perform(post("/api/links").header("Authorization", CoreIntegrationTest.AUTH).contentType("application/json")
+            mvc.perform(post("/api/urls").header("Authorization", CoreIntegrationTest.AUTH).contentType("application/json")
                     .content(json.writeValueAsString(Map.of("url", url))))
                     .andExpect(status().isUnprocessableEntity());
         }

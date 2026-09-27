@@ -5,7 +5,6 @@ data/
 .idea/
 .vscode/
 *.iml
-.superpowers/
 .DS_Store
 __pycache__/
 *.pyc

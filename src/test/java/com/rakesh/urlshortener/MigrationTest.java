@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class MigrationTest {
-    @Test void upgradesPopulatedV1WithoutLosingOldLinksOrCounts() throws Exception {
+    @Test void upgradesPopulatedV1WithoutLosingOldUrlsOrCounts() throws Exception {
         String url = "jdbc:h2:mem:migration_" + UUID.randomUUID() + ";MODE=PostgreSQL;DB_CLOSE_DELAY=-1";
         Flyway.configure().dataSource(url, "sa", "").target("1").load().migrate();
         try (var connection = DriverManager.getConnection(url, "sa", ""); var statement = connection.createStatement()) {

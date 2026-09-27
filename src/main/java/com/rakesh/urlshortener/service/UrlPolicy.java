@@ -1,4 +1,4 @@
-package com.rakesh.urlshortener.link;
+package com.rakesh.urlshortener.service;
 
 import com.rakesh.urlshortener.api.ApiException;
 import com.rakesh.urlshortener.config.AppProperties;

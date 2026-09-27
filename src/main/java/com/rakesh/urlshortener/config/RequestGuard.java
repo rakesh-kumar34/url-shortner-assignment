@@ -19,7 +19,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.springframework.http.server.PathContainer;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.ServletRequestPathUtils;
 import tools.jackson.databind.ObjectMapper;
 
 @Component @Order(Ordered.HIGHEST_PRECEDENCE + 10)
@@ -42,8 +44,11 @@ public class RequestGuard extends OncePerRequestFilter {
         response.setHeader("X-Request-ID", id);
         response.setHeader("Cache-Control", "no-store");
         long start = System.nanoTime();
-        String path = request.getRequestURI();
-        String route = path.startsWith("/api/") ? "management" : path.startsWith("/s/") ? "redirect" : "other";
+        // Match decoded path segments just as Spring MVC does, including a context path.
+        String prefix = ServletRequestPathUtils.parse(request).pathWithinApplication().elements().stream()
+                .filter(PathContainer.PathSegment.class::isInstance).map(PathContainer.PathSegment.class::cast)
+                .map(PathContainer.PathSegment::valueToMatch).findFirst().orElse("");
+        String route = prefix.equals("api") ? "management" : prefix.equals("s") ? "redirect" : "other";
         try {
             if (!route.equals("other")) {
                 int retry = limiter.acquire(route + ':' + request.getRemoteAddr(),

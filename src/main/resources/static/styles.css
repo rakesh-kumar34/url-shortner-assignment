@@ -77,18 +77,18 @@ h3 { font-size:13px; font-weight:500; margin:0 0 8px; }
 .empty p { font-size:11px; color:#8d9c90; line-height:1.8; }
 .list-footer { padding:13px 22px; border-top:1px solid #edf0ed; font-size:9px; color:#90a18f; background:#fcfdfb; border-radius:0 0 10px 10px; }
 .tiny-dot { width:4px; height:4px; background:#a7bba0; }
-.link-row { padding:20px 22px; border-bottom:1px solid #edf0ed; }
-.link-top { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
-.link-title { font-size:12px; font-weight:600; overflow-wrap:anywhere; }
+.url-row { padding:20px 22px; border-bottom:1px solid #edf0ed; }
+.url-top { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+.url-title { font-size:12px; font-weight:600; overflow-wrap:anywhere; }
 .badge { font-size:8px; letter-spacing:.3px; padding:3px 6px; border-radius:4px; background:#edf5ed; color:#558762; white-space:nowrap; }
 .badge.inactive { background:#f2eee9; color:#977955; }
 .destination { font-size:10px; color:#9aa59d; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin:5px 0 12px; }
-.short-link { color:#43806c; font-size:11px; }
-.short-link:hover { text-decoration:underline; }
-.link-actions { display:flex; align-items:center; gap:5px; margin-top:13px; }
-.link-actions button { border:1px solid #e2e8e0; background:#fcfdfb; padding:5px 8px; border-radius:4px; color:#69816d; font-size:9px; }
-.link-actions .disable { margin-left:auto; color:#aa8d7c; }
-.link-clicks { color:#91a08f; font-size:9px; margin-left:auto; padding-left:10px; white-space:nowrap; }
+.short-url { color:#43806c; font-size:11px; }
+.short-url:hover { text-decoration:underline; }
+.url-actions { display:flex; align-items:center; gap:5px; margin-top:13px; }
+.url-actions button { border:1px solid #e2e8e0; background:#fcfdfb; padding:5px 8px; border-radius:4px; color:#69816d; font-size:9px; }
+.url-actions .disable { margin-left:auto; color:#aa8d7c; }
+.url-clicks { color:#91a08f; font-size:9px; margin-left:auto; padding-left:10px; white-space:nowrap; }
 .pagination { display:flex; justify-content:space-between; align-items:center; padding:7px 14px; font-size:10px; color:#80937f; }
 .notice { background:#edf5ee; border:1px solid #cadfd0; border-radius:6px; padding:12px 15px; margin-bottom:20px; font-size:12px; }
 .notice.error { background:#fbf0ed; border-color:#e9cfc7; color:#995a46; }

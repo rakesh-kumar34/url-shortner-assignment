@@ -28,14 +28,14 @@ class CoreIntegrationTest {
     @Test
     void createRedirectAndReadPreservesQueryAndFragment() throws Exception {
         String url = "https://example.com/docs?id=42&utm_source=mail#install";
-        JsonNode link = create(Map.of("url", url, "title", "Setup guide"));
-        String code = link.get("code").asText();
+        JsonNode createdUrl = create(Map.of("url", url, "title", "Setup guide"));
+        String code = createdUrl.get("code").asText();
         assertThat(code).matches("[A-Za-z0-9_-]{12}");
-        assertThat(link.get("shortUrl").asText()).isEqualTo("https://sho.rt/s/" + code);
+        assertThat(createdUrl.get("shortUrl").asText()).isEqualTo("https://sho.rt/s/" + code);
         mvc.perform(get("/s/" + code)).andExpect(status().isFound())
                 .andExpect(header().string("Location", url))
                 .andExpect(header().string("Cache-Control", "no-store"));
-        mvc.perform(get("/api/links/" + code).header("Authorization", AUTH))
+        mvc.perform(get("/api/urls/" + code).header("Authorization", AUTH))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.totalClicks").value(1));
     }
 
@@ -43,7 +43,7 @@ class CoreIntegrationTest {
     void aliasConflictsNeverOverwriteExistingDestination() throws Exception {
         String alias = "docs-" + UUID.randomUUID().toString().substring(0, 8);
         create(Map.of("url", "https://example.com", "customAlias", alias));
-        mvc.perform(post("/api/links").header("Authorization", AUTH).contentType("application/json")
+        mvc.perform(post("/api/urls").header("Authorization", AUTH).contentType("application/json")
                 .content(json.writeValueAsString(Map.of("url", "https://example.org", "customAlias", alias))))
                 .andExpect(status().isConflict());
         mvc.perform(get("/s/" + alias)).andExpect(header().string("Location", "https://example.com"));
@@ -55,29 +55,29 @@ class CoreIntegrationTest {
             "http://service.local", "http://internal", "https://sho.rt/s/abcd", "https:example.com",
             "https://example.com/%0d%0aLocation:x"})
     void rejectsUnsafeDestinations(String url) throws Exception {
-        mvc.perform(post("/api/links").header("Authorization", AUTH).contentType("application/json")
+        mvc.perform(post("/api/urls").header("Authorization", AUTH).contentType("application/json")
                 .content(json.writeValueAsString(Map.of("url", url))))
                 .andExpect(status().isUnprocessableEntity());
     }
 
     @Test
     void managementRequiresTokenAndDoesNotExposeDetails() throws Exception {
-        for (String path : new String[]{"/api/links", "/api/links/abcd", "/api/links/abcd/stats"}) {
+        for (String path : new String[]{"/api/urls", "/api/urls/abcd", "/api/urls/abcd/stats"}) {
             mvc.perform(get(path)).andExpect(status().isUnauthorized())
                     .andExpect(jsonPath("$.code").value("unauthorized"));
         }
-        mvc.perform(post("/api/links").contentType("application/json").content("{}"))
+        mvc.perform(post("/api/urls").contentType("application/json").content("{}"))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     void rejectsMalformedUnknownAndOversizedInputs() throws Exception {
-        mvc.perform(post("/api/links").header("Authorization", AUTH).contentType("application/json").content("{broken"))
+        mvc.perform(post("/api/urls").header("Authorization", AUTH).contentType("application/json").content("{broken"))
                 .andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("invalid_json"));
-        mvc.perform(post("/api/links").header("Authorization", AUTH).contentType("application/json")
+        mvc.perform(post("/api/urls").header("Authorization", AUTH).contentType("application/json")
                 .content("{\"url\":\"https://example.com\",\"surprise\":1}"))
                 .andExpect(status().isBadRequest());
-        mvc.perform(get("/api/links?size=101").header("Authorization", AUTH))
+        mvc.perform(get("/api/urls?size=101").header("Authorization", AUTH))
                 .andExpect(status().isUnprocessableEntity());
         mvc.perform(get("/s/missing")).andExpect(status().isNotFound());
     }
@@ -85,13 +85,13 @@ class CoreIntegrationTest {
     @Test
     void listHasBoundedStablePagination() throws Exception {
         create(Map.of("url", "https://example.com"));
-        mvc.perform(get("/api/links?size=1&page=0").header("Authorization", AUTH))
+        mvc.perform(get("/api/urls?size=1&page=0").header("Authorization", AUTH))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.items.length()").value(1))
                 .andExpect(jsonPath("$.total").isNumber());
     }
 
     JsonNode create(Map<String, Object> body) throws Exception {
-        var result = mvc.perform(post("/api/links").header("Authorization", AUTH)
+        var result = mvc.perform(post("/api/urls").header("Authorization", AUTH)
                 .contentType("application/json").content(json.writeValueAsString(body)))
                 .andExpect(status().isCreated()).andReturn();
         return json.readTree(result.getResponse().getContentAsString());

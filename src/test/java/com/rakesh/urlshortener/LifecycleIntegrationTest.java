@@ -1,6 +1,6 @@
 package com.rakesh.urlshortener;
 
-import com.rakesh.urlshortener.link.LinkService;
+import com.rakesh.urlshortener.service.UrlService;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Map;
@@ -25,7 +25,7 @@ class LifecycleIntegrationTest {
     @Autowired MockMvc mvc;
     @Autowired ObjectMapper json;
     @Autowired TestTime.MutableClock clock;
-    @Autowired LinkService service;
+    @Autowired UrlService service;
     @Autowired JdbcTemplate jdbc;
 
     @BeforeEach void resetTime() { clock.set(Instant.parse("2030-01-01T12:00:00Z")); }
@@ -34,13 +34,13 @@ class LifecycleIntegrationTest {
         String code = create(Map.of("url", "https://example.com", "expiresAt", "2030-01-01T12:01:00Z"));
         clock.set(Instant.parse("2030-01-01T12:01:00Z"));
         mvc.perform(get("/s/" + code)).andExpect(status().isGone());
-        mvc.perform(get("/api/links/" + code).header("Authorization", CoreIntegrationTest.AUTH))
+        mvc.perform(get("/api/urls/" + code).header("Authorization", CoreIntegrationTest.AUTH))
                 .andExpect(jsonPath("$.status").value("EXPIRED")).andExpect(jsonPath("$.totalClicks").value(0));
     }
 
     @Test void expiryMustBeFutureAndWithinOneYear() throws Exception {
         for (String expiry : new String[]{"2030-01-01T12:00:00Z", "2032-01-01T00:00:00Z"}) {
-            mvc.perform(post("/api/links").header("Authorization", CoreIntegrationTest.AUTH).contentType("application/json")
+            mvc.perform(post("/api/urls").header("Authorization", CoreIntegrationTest.AUTH).contentType("application/json")
                     .content(json.writeValueAsString(Map.of("url", "https://example.com", "expiresAt", expiry))))
                     .andExpect(status().isUnprocessableEntity());
         }
@@ -48,10 +48,10 @@ class LifecycleIntegrationTest {
 
     @Test void disableIsIdempotentAndKeepsAnUnusableTombstone() throws Exception {
         String code = create(Map.of("url", "https://example.com"));
-        for (int i = 0; i < 2; i++) mvc.perform(delete("/api/links/" + code).header("Authorization", CoreIntegrationTest.AUTH))
+        for (int i = 0; i < 2; i++) mvc.perform(delete("/api/urls/" + code).header("Authorization", CoreIntegrationTest.AUTH))
                 .andExpect(status().isNoContent());
         mvc.perform(get("/s/" + code)).andExpect(status().isGone());
-        mvc.perform(get("/api/links/" + code).header("Authorization", CoreIntegrationTest.AUTH))
+        mvc.perform(get("/api/urls/" + code).header("Authorization", CoreIntegrationTest.AUTH))
                 .andExpect(jsonPath("$.status").value("DISABLED"));
     }
 
@@ -64,7 +64,7 @@ class LifecycleIntegrationTest {
             for (var result : pool.invokeAll(work)) assertThat(result.get()).isEqualTo("https://example.com");
         } finally { pool.shutdownNow(); }
         mvc.perform(head("/s/" + code)).andExpect(status().isFound()).andExpect(content().string(""));
-        mvc.perform(get("/api/links/" + code + "/stats").header("Authorization", CoreIntegrationTest.AUTH))
+        mvc.perform(get("/api/urls/" + code + "/stats").header("Authorization", CoreIntegrationTest.AUTH))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.totalClicks").value(40))
                 .andExpect(jsonPath("$.daily.length()").value(30)).andExpect(jsonPath("$.daily[29].clicks").value(40));
     }
@@ -75,7 +75,7 @@ class LifecycleIntegrationTest {
         service.resolve(code, true);
         clock.set(Instant.parse("2030-01-02T00:00:00Z"));
         service.resolve(code, true);
-        mvc.perform(get("/api/links/" + code + "/stats").header("Authorization", CoreIntegrationTest.AUTH))
+        mvc.perform(get("/api/urls/" + code + "/stats").header("Authorization", CoreIntegrationTest.AUTH))
                 .andExpect(jsonPath("$.daily[0].clicks").value(0))
                 .andExpect(jsonPath("$.daily[28].date").value("2030-01-01"))
                 .andExpect(jsonPath("$.daily[28].clicks").value(1))
@@ -92,7 +92,7 @@ class LifecycleIntegrationTest {
     }
 
     private String create(Map<String, Object> payload) throws Exception {
-        var result = mvc.perform(post("/api/links").header("Authorization", CoreIntegrationTest.AUTH)
+        var result = mvc.perform(post("/api/urls").header("Authorization", CoreIntegrationTest.AUTH)
                 .contentType("application/json").content(json.writeValueAsString(payload)))
                 .andExpect(status().isCreated()).andReturn();
         return json.readTree(result.getResponse().getContentAsString()).get("code").asText();

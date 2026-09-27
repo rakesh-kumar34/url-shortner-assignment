@@ -1,11 +1,11 @@
-package com.rakesh.urlshortener.link;
+package com.rakesh.urlshortener.service;
 
 import com.rakesh.urlshortener.api.ApiException;
-import com.rakesh.urlshortener.api.CreateLinkRequest;
-import com.rakesh.urlshortener.api.LinkResponse;
+import com.rakesh.urlshortener.api.CreateUrlRequest;
+import com.rakesh.urlshortener.api.UrlResponse;
 import com.rakesh.urlshortener.config.AppProperties;
-import com.rakesh.urlshortener.persistence.Link;
-import com.rakesh.urlshortener.persistence.LinkRepository;
+import com.rakesh.urlshortener.persistence.ShortUrl;
+import com.rakesh.urlshortener.persistence.UrlRepository;
 import com.rakesh.urlshortener.persistence.DailyClick;
 import com.rakesh.urlshortener.persistence.DailyClickId;
 import com.rakesh.urlshortener.persistence.DailyClickRepository;
@@ -30,30 +30,30 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
-public class LinkService {
-    private final LinkRepository links;
-    private final UrlPolicy urls;
-    private final CodeGenerator codes;
+public class UrlService {
+    private final UrlRepository urls;
+    private final UrlPolicy urlPolicy;
+    private final ShortCodeGenerator codes;
     private final AppProperties config;
     private final Clock clock;
     private final TransactionTemplate transactions;
     private final DailyClickRepository daily;
     private final IdempotencyRepository keys;
 
-    public LinkService(LinkRepository links, UrlPolicy urls, CodeGenerator codes,
+    public UrlService(UrlRepository urls, UrlPolicy urlPolicy, ShortCodeGenerator codes,
                        AppProperties config, Clock clock, TransactionTemplate transactions,
                        DailyClickRepository daily, IdempotencyRepository keys) {
-        this.links = links; this.urls = urls; this.codes = codes;
+        this.urls = urls; this.urlPolicy = urlPolicy; this.codes = codes;
         this.config = config; this.clock = clock; this.transactions = transactions;
         this.daily = daily;
         this.keys = keys;
     }
 
-    public record CreateResult(LinkResponse link, boolean replayed) { }
-    public record LinkPage(List<LinkResponse> items, long total, int page, int size) { }
+    public record CreateResult(UrlResponse url, boolean replayed) { }
+    public record UrlPage(List<UrlResponse> items, long total, int page, int size) { }
 
-    public CreateResult create(CreateLinkRequest request, String key) {
-        String destination = urls.validate(request.url());
+    public CreateResult create(CreateUrlRequest request, String key) {
+        String destination = urlPolicy.validate(request.url());
         if (request.expiresAt() != null && request.expiresAt().getNano() % 1000 != 0) {
             throw new ApiException(422, "invalid_expiry", "Expiry supports at most six fractional second digits");
         }
@@ -74,10 +74,10 @@ public class LinkService {
                             || request.expiresAt().isAfter(clock.instant().plus(Duration.ofDays(365))))) {
                         throw new ApiException(422, "invalid_expiry", "Expiry must be in the future and within 365 days");
                     }
-                    Link link = new Link(code, destination, title, clock.instant(), request.expiresAt());
-                    links.saveAndFlush(link);
+                    ShortUrl url = new ShortUrl(code, destination, title, clock.instant(), request.expiresAt());
+                    urls.saveAndFlush(url);
                     if (keyHash != null) { keys.saveAndFlush(new IdempotencyRecord(keyHash, fingerprint, code)); }
-                    return new CreateResult(view(link), false);
+                    return new CreateResult(view(url), false);
                 });
             } catch (DataIntegrityViolationException collision) {
                 if (!isUniqueViolation(collision)) { throw collision; }
@@ -125,28 +125,28 @@ public class LinkService {
         } catch (NoSuchAlgorithmException impossible) { throw new IllegalStateException("SHA-256 is required by Java", impossible); }
     }
 
-    public LinkResponse get(String code) { return view(require(code)); }
+    public UrlResponse get(String code) { return view(require(code)); }
 
     public String resolve(String code, boolean count) {
         return transactions.execute(status -> {
-            Link link = links.findLocked(code).orElseThrow(LinkService::missing);
+            ShortUrl url = urls.findLocked(code).orElseThrow(UrlService::missing);
             var now = clock.instant();
-            if (!link.statusAt(now).equals("ACTIVE")) {
-                throw new ApiException(410, "link_inactive", "This link has expired or been disabled");
+            if (!url.statusAt(now).equals("ACTIVE")) {
+                throw new ApiException(410, "url_inactive", "This URL has expired or been disabled");
             }
             if (count) {
-                link.recordClick(now);
+                url.recordClick(now);
                 var day = new DailyClickId(code, LocalDate.ofInstant(now, ZoneOffset.UTC));
                 var clicks = daily.findById(day).orElseGet(() -> new DailyClick(day));
                 clicks.increment();
                 daily.saveAndFlush(clicks);
             }
-            return link.getDestination();
+            return url.getDestination();
         });
     }
 
     public void disable(String code) {
-        transactions.executeWithoutResult(status -> links.findLocked(code).orElseThrow(LinkService::missing).disable(clock.instant()));
+        transactions.executeWithoutResult(status -> urls.findLocked(code).orElseThrow(UrlService::missing).disable(clock.instant()));
     }
 
     public record DayClicks(LocalDate date, long clicks) { }
@@ -154,7 +154,7 @@ public class LinkService {
 
     public Stats stats(String code) {
         return transactions.execute(status -> {
-            Link link = links.findLocked(code).orElseThrow(LinkService::missing);
+            ShortUrl url = urls.findLocked(code).orElseThrow(UrlService::missing);
             LocalDate today = LocalDate.ofInstant(clock.instant(), ZoneOffset.UTC);
             var counts = new HashMap<LocalDate, Long>();
             daily.recent(code, today.minusDays(29)).forEach(row -> counts.put(row.getId().getDay(), row.getClicks()));
@@ -163,24 +163,24 @@ public class LinkService {
                 LocalDate day = today.minusDays(i);
                 buckets.add(new DayClicks(day, counts.getOrDefault(day, 0L)));
             }
-            return new Stats(code, link.getTotalClicks(), buckets, "Committed GET resolutions; includes bots and repeat requests; UTC days");
+            return new Stats(code, url.getTotalClicks(), buckets, "Committed GET resolutions; includes bots and repeat requests; UTC days");
         });
     }
 
-    public LinkPage list(int page, int size) {
+    public UrlPage list(int page, int size) {
         if (page < 0 || page > 10000 || size < 1 || size > 100) {
             throw new ApiException(422, "invalid_page", "Use page 0-10000 and size 1-100");
         }
-        var result = links.findAll(PageRequest.of(page, size, Sort.by(Sort.Order.desc("createdAt"), Sort.Order.asc("code"))));
-        return new LinkPage(result.stream().map(this::view).toList(), result.getTotalElements(), page, size);
+        var result = urls.findAll(PageRequest.of(page, size, Sort.by(Sort.Order.desc("createdAt"), Sort.Order.asc("code"))));
+        return new UrlPage(result.stream().map(this::view).toList(), result.getTotalElements(), page, size);
     }
 
-    private Link require(String code) { return links.findById(code).orElseThrow(LinkService::missing); }
-    private static ApiException missing() { return new ApiException(404, "not_found", "Link not found"); }
+    private ShortUrl require(String code) { return urls.findById(code).orElseThrow(UrlService::missing); }
+    private static ApiException missing() { return new ApiException(404, "not_found", "URL not found"); }
 
-    private LinkResponse view(Link link) {
-        return new LinkResponse(link.getCode(), config.publicOrigin() + "/s/" + link.getCode(),
-                link.getDestination(), link.getTitle(), link.getCreatedAt(), link.getTotalClicks(), link.getLastClickedAt(),
-                link.getExpiresAt(), link.getDisabledAt(), link.statusAt(clock.instant()));
+    private UrlResponse view(ShortUrl url) {
+        return new UrlResponse(url.getCode(), config.publicOrigin() + "/s/" + url.getCode(),
+                url.getDestination(), url.getTitle(), url.getCreatedAt(), url.getTotalClicks(), url.getLastClickedAt(),
+                url.getExpiresAt(), url.getDisabledAt(), url.statusAt(clock.instant()));
     }
 }

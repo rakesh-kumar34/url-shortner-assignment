@@ -17,13 +17,13 @@ The code uses Java records, constructor injection, Spring Security, Bean Validat
 
 The three real scenario commits are `95bc345` (greenfield), `322873a` (brownfield lifecycle/analytics) and `ec57f00` (retry ambiguity and bounded requests). [SCENARIOS.md](SCENARIOS.md) maps the task, decisions, acceptance criteria and tests to each increment. [AI_WORK_LOG.md](AI_WORK_LOG.md) records AI assistance and the engineer's ownership boundary.
 
-Final Maven verification passed **34 cases with no failures, errors or skips**, with zero Checkstyle violations. JaCoCo recorded 93.3% line and 68.9% branch coverage. Review regression tests exposed and drove fixes for encoded URL length and expiry precision. The final OSV audit reported no findings across 100 resolved runtime packages after the Tomcat update.
+Final Maven verification passed **36 cases with no failures, errors or skips**, with zero Checkstyle violations. JaCoCo recorded 93.7% line and 69.3% branch coverage. Review regression tests exposed and drove fixes for encoded URL length, expiry precision, encoded-route limits and storage-start errors. The final OSV audit reported no findings across 100 resolved runtime packages after the Tomcat update.
 
-The packaged JAR passed HTTP smoke checks, retained its link and idempotency result across an actual process restart, and omitted the tested token/destination values from logs. A local H2 run completed 100 redirects at concurrency eight with all 100 counted; its 302.4 requests/second result is not a production capacity claim. [VALIDATION.md](VALIDATION.md) records the measurements and remaining gaps.
+The packaged JAR passed HTTP smoke checks, retained its link and idempotency result across an actual process restart, and omitted the tested token/destination values from logs. A local H2 run completed 100 redirects at concurrency eight with all 100 counted; its 192.8 requests/second result is not a production capacity claim. [VALIDATION.md](VALIDATION.md) records the measurements and remaining gaps.
 
 ## Remaining limits and acceptance
 
-GitHub Actions completed H2 verification, the dependency audit and PostgreSQL integration tests successfully for the initial delivery. Docker Compose execution and visual browser testing remain unverified. See the linked CI evidence in VALIDATION.md. Repository: [rakesh-kumar34/url-shortner-assignment](https://github.com/rakesh-kumar34/url-shortner-assignment). Human submission sign-off remains pending.
+GitHub Actions completed H2 verification, the dependency audit and PostgreSQL integration tests successfully for the initial delivery. A new CI job now builds Docker Compose and exercises desktop/mobile Chromium flows; its final result will be recorded in the validation evidence. See the linked CI evidence in VALIDATION.md. Repository: [rakesh-kumar34/url-shortner-assignment](https://github.com/rakesh-kumar34/url-shortner-assignment). Human submission sign-off remains pending.
 
 The prototype has one operator credential and process-local admission limits. Hot links serialize database writes; analytics count committed resolutions, not unique people or confirmed destination visits. It does not claim production capacity, an SLA, multi-tenancy or destination safety scanning. These are deliberate scope boundaries with follow-up paths in [ARCHITECTURE.md](ARCHITECTURE.md).
 
