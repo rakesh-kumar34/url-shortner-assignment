@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: shortline
+  profiles:
+    default: local
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+server:
+  port: ${PORT:8080}
+  max-http-request-header-size: 8KB
+  forward-headers-strategy: none
+  tomcat:
+    connection-timeout: 5s
+    threads:
+      max: 100
+  error:
+    include-message: never
+    include-stacktrace: never
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+      probes:
+        enabled: true
+      group:
+        readiness:
+          include: readinessState,db
+app:
+  public-origin: ${PUBLIC_ORIGIN:http://localhost:8080}
+  api-token: ${API_TOKEN:}
+  management-limit: 120
+  redirect-limit: 600
