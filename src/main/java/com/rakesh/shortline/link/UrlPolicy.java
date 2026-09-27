@@ -32,6 +32,15 @@ public class UrlPolicy {
                 throw new IllegalArgumentException();
             }
             // Numeric literals only: never resolve an arbitrary hostname or fetch its destination.
+            if (!host.contains(":") && host.matches(".*\\.[0-9]+")) {
+                String[] octets = host.split("\\.", -1);
+                if (octets.length != 4) { throw new IllegalArgumentException(); }
+                for (String octet : octets) {
+                    if (!octet.matches("0|[1-9][0-9]{0,2}") || Integer.parseInt(octet) > 255) {
+                        throw new IllegalArgumentException();
+                    }
+                }
+            }
             if (host.matches("[0-9.]+") || host.contains(":")) {
                 InetAddress ip = InetAddress.getByName(host);
                 byte[] bytes = ip.getAddress();

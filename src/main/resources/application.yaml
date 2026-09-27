@@ -15,6 +15,7 @@ server:
   max-http-request-header-size: 8KB
   forward-headers-strategy: none
   tomcat:
+    max-swallow-size: 8KB
     connection-timeout: 5s
     threads:
       max: 100
