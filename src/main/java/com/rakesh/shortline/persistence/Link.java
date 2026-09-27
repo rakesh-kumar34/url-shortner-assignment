@@ -17,14 +17,17 @@ public class Link {
     @Column(nullable = false) private Instant createdAt;
     @Column(nullable = false) private long totalClicks;
     private Instant lastClickedAt;
+    private Instant expiresAt;
+    private Instant disabledAt;
 
     protected Link() { }
 
-    public Link(String code, String destination, String title, Instant createdAt) {
+    public Link(String code, String destination, String title, Instant createdAt, Instant expiresAt) {
         this.code = code;
         this.destination = destination;
         this.title = title;
         this.createdAt = createdAt;
+        this.expiresAt = expiresAt;
     }
 
     public void recordClick(Instant now) { totalClicks++; lastClickedAt = now; }
@@ -34,4 +37,11 @@ public class Link {
     public Instant getCreatedAt() { return createdAt; }
     public long getTotalClicks() { return totalClicks; }
     public Instant getLastClickedAt() { return lastClickedAt; }
+    public Instant getExpiresAt() { return expiresAt; }
+    public Instant getDisabledAt() { return disabledAt; }
+    public void disable(Instant now) { if (disabledAt == null) { disabledAt = now; } }
+    public String statusAt(Instant now) {
+        if (disabledAt != null) { return "DISABLED"; }
+        return expiresAt != null && !now.isBefore(expiresAt) ? "EXPIRED" : "ACTIVE";
+    }
 }

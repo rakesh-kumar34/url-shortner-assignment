@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import java.net.URI;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,6 +34,15 @@ public class LinkController {
 
     @GetMapping("/api/links/{code}")
     LinkResponse get(@PathVariable String code) { return service.get(code); }
+
+    @GetMapping("/api/links/{code}/stats")
+    LinkService.Stats stats(@PathVariable String code) { return service.stats(code); }
+
+    @DeleteMapping("/api/links/{code}")
+    ResponseEntity<Void> disable(@PathVariable String code) {
+        service.disable(code);
+        return ResponseEntity.noContent().build();
+    }
 
     @GetMapping("/s/{code}")
     ResponseEntity<Void> redirect(@PathVariable String code, HttpServletRequest request) {

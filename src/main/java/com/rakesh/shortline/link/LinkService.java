@@ -6,7 +6,15 @@ import com.rakesh.shortline.api.LinkResponse;
 import com.rakesh.shortline.config.AppProperties;
 import com.rakesh.shortline.persistence.Link;
 import com.rakesh.shortline.persistence.LinkRepository;
+import com.rakesh.shortline.persistence.DailyClick;
+import com.rakesh.shortline.persistence.DailyClickId;
+import com.rakesh.shortline.persistence.DailyClickRepository;
 import java.time.Clock;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
@@ -22,11 +30,13 @@ public class LinkService {
     private final AppProperties config;
     private final Clock clock;
     private final TransactionTemplate transactions;
+    private final DailyClickRepository daily;
 
     public LinkService(LinkRepository links, UrlPolicy urls, CodeGenerator codes,
-                       AppProperties config, Clock clock, TransactionTemplate transactions) {
+                       AppProperties config, Clock clock, TransactionTemplate transactions, DailyClickRepository daily) {
         this.links = links; this.urls = urls; this.codes = codes;
         this.config = config; this.clock = clock; this.transactions = transactions;
+        this.daily = daily;
     }
 
     public record CreateResult(LinkResponse link, boolean replayed) { }
@@ -34,6 +44,10 @@ public class LinkService {
 
     public CreateResult create(CreateLinkRequest request, String key) {
         String destination = urls.validate(request.url());
+        if (request.expiresAt() != null && (!request.expiresAt().isAfter(clock.instant())
+                || request.expiresAt().isAfter(clock.instant().plus(Duration.ofDays(365))))) {
+            throw new ApiException(422, "invalid_expiry", "Expiry must be in the future and within 365 days");
+        }
         for (int attempt = 0; attempt < 5; attempt++) {
             String code = request.customAlias() == null ? codes.next() : request.customAlias();
             try {
@@ -41,7 +55,7 @@ public class LinkService {
                     if (links.existsById(code)) {
                         throw new DataIntegrityViolationException("Code already exists");
                     }
-                    Link link = new Link(code, destination, request.title() == null ? "" : request.title().strip(), clock.instant());
+                    Link link = new Link(code, destination, request.title() == null ? "" : request.title().strip(), clock.instant(), request.expiresAt());
                     links.saveAndFlush(link);
                     return new CreateResult(view(link), false);
                 });
@@ -59,8 +73,40 @@ public class LinkService {
     public String resolve(String code, boolean count) {
         return transactions.execute(status -> {
             Link link = links.findLocked(code).orElseThrow(LinkService::missing);
-            if (count) { link.recordClick(clock.instant()); }
+            var now = clock.instant();
+            if (!link.statusAt(now).equals("ACTIVE")) {
+                throw new ApiException(410, "link_inactive", "This link has expired or been disabled");
+            }
+            if (count) {
+                link.recordClick(now);
+                var day = new DailyClickId(code, LocalDate.ofInstant(now, ZoneOffset.UTC));
+                var clicks = daily.findById(day).orElseGet(() -> new DailyClick(day));
+                clicks.increment();
+                daily.saveAndFlush(clicks);
+            }
             return link.getDestination();
+        });
+    }
+
+    public void disable(String code) {
+        transactions.executeWithoutResult(status -> links.findLocked(code).orElseThrow(LinkService::missing).disable(clock.instant()));
+    }
+
+    public record DayClicks(LocalDate date, long clicks) { }
+    public record Stats(String code, long totalClicks, List<DayClicks> daily, String definition) { }
+
+    public Stats stats(String code) {
+        return transactions.execute(status -> {
+            Link link = links.findLocked(code).orElseThrow(LinkService::missing);
+            LocalDate today = LocalDate.ofInstant(clock.instant(), ZoneOffset.UTC);
+            var counts = new HashMap<LocalDate, Long>();
+            daily.recent(code, today.minusDays(29)).forEach(row -> counts.put(row.getId().getDay(), row.getClicks()));
+            var buckets = new ArrayList<DayClicks>();
+            for (int i = 29; i >= 0; i--) {
+                LocalDate day = today.minusDays(i);
+                buckets.add(new DayClicks(day, counts.getOrDefault(day, 0L)));
+            }
+            return new Stats(code, link.getTotalClicks(), buckets, "Committed GET resolutions; includes bots and repeat requests; UTC days");
         });
     }
 
@@ -77,6 +123,7 @@ public class LinkService {
 
     private LinkResponse view(Link link) {
         return new LinkResponse(link.getCode(), config.publicOrigin() + "/s/" + link.getCode(),
-                link.getDestination(), link.getTitle(), link.getCreatedAt(), link.getTotalClicks(), link.getLastClickedAt());
+                link.getDestination(), link.getTitle(), link.getCreatedAt(), link.getTotalClicks(), link.getLastClickedAt(),
+                link.getExpiresAt(), link.getDisabledAt(), link.statusAt(clock.instant()));
     }
 }
