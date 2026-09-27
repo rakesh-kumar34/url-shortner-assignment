@@ -1,0 +1,225 @@
+openapi: 3.0.3
+info:
+  title: Shortline API
+  version: 1.0.0
+  description: >-
+    Single-operator URL management and public redirects. Counts are committed GET
+    resolutions, including bots and repeat requests, not unique visitors.
+servers:
+  - url: http://localhost:8080
+security:
+  - bearerAuth: []
+paths:
+  /api/links:
+    post:
+      operationId: createLink
+      summary: Create a short link
+      description: >-
+        Matching Idempotency-Key retries return the same resource's current state
+        with 200. Different payloads with the same key return 409. Keys persist for
+        the resource lifetime. Full destination query and fragment are preserved.
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          schema: {type: string, pattern: '^[A-Za-z0-9_-]{1,128}$'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CreateLink'}
+      responses:
+        '201':
+          description: Created
+          headers:
+            Location: {description: Management URL for the new resource, schema: {type: string}}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Link'}
+        '200':
+          description: Replayed creation
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Link'}
+        '400': {$ref: '#/components/responses/InvalidJson'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '409': {description: Alias or idempotency conflict, content: {application/json: {schema: {$ref: '#/components/schemas/Error'}}}}
+        '413': {description: JSON body exceeds 8192 bytes}
+        '415': {description: Unsupported content type or content encoding}
+        '422': {$ref: '#/components/responses/Validation'}
+        '429': {$ref: '#/components/responses/RateLimited'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+    get:
+      operationId: listLinks
+      summary: List links, newest first
+      parameters:
+        - in: query
+          name: page
+          schema: {type: integer, minimum: 0, maximum: 10000, default: 0}
+        - in: query
+          name: size
+          schema: {type: integer, minimum: 1, maximum: 100, default: 20}
+      responses:
+        '200':
+          description: Page of links, including expired and disabled links
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: {type: array, items: {$ref: '#/components/schemas/Link'}}
+                  total: {type: integer, format: int64}
+                  page: {type: integer}
+                  size: {type: integer}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '422': {$ref: '#/components/responses/Validation'}
+        '429': {$ref: '#/components/responses/RateLimited'}
+  /api/links/{code}:
+    parameters:
+      - {$ref: '#/components/parameters/Code'}
+    get:
+      operationId: getLink
+      summary: Inspect a link
+      responses:
+        '200': {description: Link metadata, content: {application/json: {schema: {$ref: '#/components/schemas/Link'}}}}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '429': {$ref: '#/components/responses/RateLimited'}
+    delete:
+      operationId: disableLink
+      summary: Soft-disable a link
+      description: Repeated disable requests return 204. The code and its history remain reserved.
+      responses:
+        '204': {description: Disabled, or already disabled}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '429': {$ref: '#/components/responses/RateLimited'}
+  /api/links/{code}/stats:
+    parameters:
+      - {$ref: '#/components/parameters/Code'}
+    get:
+      operationId: getStats
+      summary: Lifetime count and last 30 UTC days
+      responses:
+        '200':
+          description: Aggregate counts; no raw visitor data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code: {type: string}
+                  totalClicks: {type: integer, format: int64}
+                  definition: {type: string}
+                  daily:
+                    type: array
+                    minItems: 30
+                    maxItems: 30
+                    items:
+                      type: object
+                      properties:
+                        date: {type: string, format: date}
+                        clicks: {type: integer, format: int64}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '429': {$ref: '#/components/responses/RateLimited'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /s/{code}:
+    parameters:
+      - {$ref: '#/components/parameters/Code'}
+    get:
+      operationId: resolveLink
+      security: []
+      summary: Resolve and count a link
+      responses:
+        '302': {$ref: '#/components/responses/Redirect'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '410': {description: Expired or disabled; no click counted}
+        '429': {$ref: '#/components/responses/RateLimited'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+    head:
+      operationId: inspectRedirect
+      security: []
+      summary: Resolve without counting
+      responses:
+        '302': {$ref: '#/components/responses/Redirect'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '410': {description: Expired or disabled}
+        '429': {$ref: '#/components/responses/RateLimited'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /actuator/health/liveness:
+    get:
+      operationId: liveness
+      security: []
+      summary: Process health
+      responses:
+        '200': {description: Process live}
+  /actuator/health/readiness:
+    get:
+      operationId: readiness
+      security: []
+      summary: Database-backed readiness
+      responses:
+        '200': {description: Ready}
+        '503': {description: Not ready}
+components:
+  securitySchemes:
+    bearerAuth: {type: http, scheme: bearer, description: Single operator API token from API_TOKEN}
+  parameters:
+    Code:
+      in: path
+      name: code
+      required: true
+      schema: {type: string, pattern: '^[A-Za-z0-9_-]{4,32}$'}
+  schemas:
+    CreateLink:
+      type: object
+      additionalProperties: false
+      required: [url]
+      properties:
+        url: {type: string, format: uri, maxLength: 2048, description: Must also fit 2048 characters after ASCII URI encoding, example: 'https://example.com/docs?section=api#auth'}
+        title: {type: string, nullable: true, maxLength: 120}
+        customAlias: {type: string, nullable: true, pattern: '^[A-Za-z0-9_-]{4,32}$'}
+        expiresAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Absolute future timestamp, at most 365 days from creation, with at most six fractional second digits. Null means no expiry.
+    Link:
+      type: object
+      properties:
+        code: {type: string}
+        shortUrl: {type: string, format: uri}
+        url: {type: string, format: uri}
+        title: {type: string}
+        createdAt: {type: string, format: date-time}
+        expiresAt: {type: string, format: date-time, nullable: true}
+        disabledAt: {type: string, format: date-time, nullable: true}
+        status: {type: string, enum: [ACTIVE, EXPIRED, DISABLED]}
+        totalClicks: {type: integer, format: int64, minimum: 0}
+        lastClickedAt: {type: string, format: date-time, nullable: true}
+    Error:
+      type: object
+      properties:
+        code: {type: string}
+        message: {type: string}
+        requestId: {type: string, format: uuid}
+  responses:
+    Unauthorized: {description: Missing or invalid bearer token, content: {application/json: {schema: {$ref: '#/components/schemas/Error'}}}}
+    InvalidJson: {description: Malformed JSON or unknown field, content: {application/json: {schema: {$ref: '#/components/schemas/Error'}}}}
+    Validation: {description: Invalid field value, content: {application/json: {schema: {$ref: '#/components/schemas/Error'}}}}
+    NotFound: {description: Unknown link, content: {application/json: {schema: {$ref: '#/components/schemas/Error'}}}}
+    RateLimited:
+      description: Instance rate limit reached
+      headers:
+        Retry-After: {schema: {type: integer}, description: Seconds before retry}
+      content: {application/json: {schema: {$ref: '#/components/schemas/Error'}}}
+    Unavailable:
+      description: Transient storage or code allocation failure
+      headers:
+        Retry-After: {schema: {type: integer}, description: Present for storage failures}
+      content: {application/json: {schema: {$ref: '#/components/schemas/Error'}}}
+    Redirect:
+      description: Destination URL; response is not cached
+      headers:
+        Location: {schema: {type: string, format: uri}}
+        Cache-Control: {schema: {type: string, enum: [no-store]}}

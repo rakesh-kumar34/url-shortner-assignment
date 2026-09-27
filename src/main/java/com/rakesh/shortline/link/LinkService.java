@@ -14,6 +14,7 @@ import com.rakesh.shortline.persistence.IdempotencyRepository;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -53,6 +54,9 @@ public class LinkService {
 
     public CreateResult create(CreateLinkRequest request, String key) {
         String destination = urls.validate(request.url());
+        if (request.expiresAt() != null && request.expiresAt().getNano() % 1000 != 0) {
+            throw new ApiException(422, "invalid_expiry", "Expiry supports at most six fractional second digits");
+        }
         if (key != null && !key.matches("[A-Za-z0-9_-]{1,128}")) {
             throw new ApiException(422, "invalid_idempotency_key", "Use 1-128 URL-safe characters for Idempotency-Key");
         }
@@ -70,15 +74,13 @@ public class LinkService {
                             || request.expiresAt().isAfter(clock.instant().plus(Duration.ofDays(365))))) {
                         throw new ApiException(422, "invalid_expiry", "Expiry must be in the future and within 365 days");
                     }
-                    if (links.existsById(code)) {
-                        throw new DataIntegrityViolationException("Code already exists");
-                    }
                     Link link = new Link(code, destination, title, clock.instant(), request.expiresAt());
                     links.saveAndFlush(link);
                     if (keyHash != null) { keys.saveAndFlush(new IdempotencyRecord(keyHash, fingerprint, code)); }
                     return new CreateResult(view(link), false);
                 });
             } catch (DataIntegrityViolationException collision) {
+                if (!isUniqueViolation(collision)) { throw collision; }
                 // The failed transaction is over. Check the committed winner using a fresh transaction.
                 CreateResult replay = transactions.execute(status -> replay(keyHash, fingerprint));
                 if (replay != null) { return replay; }
@@ -88,6 +90,13 @@ public class LinkService {
             }
         }
         throw new ApiException(503, "code_unavailable", "Unable to allocate a code; retry the request");
+    }
+
+    private boolean isUniqueViolation(Throwable error) {
+        for (Throwable cause = error; cause != null; cause = cause.getCause()) {
+            if (cause instanceof SQLException sql && "23505".equals(sql.getSQLState())) { return true; }
+        }
+        return false;
     }
 
     private CreateResult replay(String keyHash, String fingerprint) {

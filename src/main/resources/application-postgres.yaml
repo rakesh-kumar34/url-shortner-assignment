@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASSWORD}
+    hikari:
+      maximum-pool-size: 10
+      connection-timeout: 3000
+      connection-init-sql: SET lock_timeout = '3s'

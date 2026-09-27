@@ -40,3 +40,8 @@ app:
   api-token: ${API_TOKEN:}
   management-limit: 120
   redirect-limit: 600
+logging:
+  level:
+    # Driver diagnostics may contain bound values. RequestGuard records safe status/latency instead.
+    org.hibernate.orm.jdbc.error: "OFF"
+    org.hibernate.engine.jdbc.spi.SqlExceptionHelper: "OFF"

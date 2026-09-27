@@ -46,3 +46,6 @@ The assistant can prepare code and checks. The engineer must approve security po
 - The initial Java test run failed because no Spring Boot application existed yet. It established the greenfield baseline before implementation.
 - Maven download failure was traced to a workspace proxy endpoint that changes between tool invocations. The build helper was corrected to read the current environment for each run. That environment-specific helper is not part of the project.
 - Additional observed failures, fixes and final verification are recorded alongside the relevant scenario in VALIDATION.md; no simulated test outcomes are included.
+
+- Fresh code review identified Unicode URL expansion beyond the database column limit. A regression test reproduced a wrong 503, and the fix validates the encoded URL before storage and recognizes only SQLSTATE 23505 as a collision. Precision finer than PostgreSQL microseconds is rejected explicitly. Driver diagnostic loggers are disabled because they can print bound data; structured request outcomes remain available.
+- The dependency audit found three Tomcat 11.0.24 advisories in the Spring Boot BOM. The project overrides the complete Tomcat dependency family to 11.0.25; the subsequent audit result is recorded in VALIDATION.md.

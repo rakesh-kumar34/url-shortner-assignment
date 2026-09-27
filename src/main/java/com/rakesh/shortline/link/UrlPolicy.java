@@ -55,7 +55,9 @@ public class UrlPolicy {
             if (host.equalsIgnoreCase(publicOrigin.getHost()) && port(uri) == port(publicOrigin)) {
                 throw new IllegalArgumentException();
             }
-            return uri.toASCIIString();
+            String encoded = uri.toASCIIString();
+            if (encoded.length() > 2048) { throw new IllegalArgumentException(); }
+            return encoded;
         } catch (Exception e) {
             throw new ApiException(422, "invalid_url", "Use a public HTTP(S) URL without credentials or control characters");
         }

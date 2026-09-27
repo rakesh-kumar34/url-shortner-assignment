@@ -1,0 +1,30 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: shortline
+      POSTGRES_USER: shortline
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:?Set DATABASE_PASSWORD in .env}
+    volumes:
+      - shortline-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shortline -d shortline"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  app:
+    build: .
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: postgres
+      DATABASE_URL: jdbc:postgresql://db:5432/shortline
+      DATABASE_USER: shortline
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:?Set DATABASE_PASSWORD in .env}
+      API_TOKEN: ${API_TOKEN:?Set API_TOKEN in .env}
+      PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:-http://localhost:8080}
+    depends_on:
+      db:
+        condition: service_healthy
+volumes:
+  shortline-data:
