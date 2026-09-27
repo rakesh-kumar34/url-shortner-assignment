@@ -23,7 +23,7 @@ The packaged JAR passed HTTP smoke checks, retained its link and idempotency res
 
 ## Remaining limits and acceptance
 
-GitHub Actions completed H2 verification, the dependency audit and PostgreSQL integration tests successfully for the initial delivery. A new CI job now builds Docker Compose and exercises desktop/mobile Chromium flows; its final result will be recorded in the validation evidence. See the linked CI evidence in VALIDATION.md. Repository: [rakesh-kumar34/url-shortner-assignment](https://github.com/rakesh-kumar34/url-shortner-assignment). Human submission sign-off remains pending.
+GitHub Actions completed H2 verification, the dependency audit and PostgreSQL integration tests successfully for the reviewed application. The final review also passed all 36 cases on PostgreSQL, built and exercised Docker Compose, and passed the desktop/mobile Chromium workflow. See the linked CI evidence in VALIDATION.md. Repository: [rakesh-kumar34/url-shortner-assignment](https://github.com/rakesh-kumar34/url-shortner-assignment). Human submission sign-off remains pending.
 
 The prototype has one operator credential and process-local admission limits. Hot links serialize database writes; analytics count committed resolutions, not unique people or confirmed destination visits. It does not claim production capacity, an SLA, multi-tenancy or destination safety scanning. These are deliberate scope boundaries with follow-up paths in [ARCHITECTURE.md](ARCHITECTURE.md).
 

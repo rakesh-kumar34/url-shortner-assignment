@@ -11,7 +11,7 @@ Technical checks and candidate acceptance are recorded separately. Completed aut
 - [x] Audit 100 runtime dependency coordinates: no current OSV findings.
 - [x] Exercise the packaged JAR, restart persistence, durable retries, request-log redaction and a bounded local benchmark.
 - [x] Re-review the request-boundary, storage-error and disconnect fixes; no remaining critical or important code-review findings.
-- [ ] Record the final published PostgreSQL, Docker Compose and desktop/mobile browser CI results in [VALIDATION.md](VALIDATION.md).
+- [x] Verify the published source tree and record passing PostgreSQL, Docker Compose and desktop/mobile browser CI results in [VALIDATION.md](VALIDATION.md).
 
 ## Candidate acceptance before submission
 

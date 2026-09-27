@@ -1,6 +1,6 @@
 # Validation record
 
-Evidence recorded on 2026-09-27. Results distinguish completed runs from checks that are configured or still pending. H2 in PostgreSQL mode is not a substitute for executing against PostgreSQL.
+Evidence recorded on 2026-09-27. [Final application verification](https://github.com/rakesh-kumar34/url-shortner-assignment/actions/runs/36327014251) passed for commit `368530c`: 36 cases on H2, 36 cases on PostgreSQL, dependency audit, Docker Compose build/runtime and Chromium browser flows. H2 in PostgreSQL mode is not a substitute for executing against PostgreSQL; both environments were exercised.
 
 ## Executed milestone checks
 
@@ -66,10 +66,12 @@ This was a short, warm-JVM, single-process H2 measurement with no external desti
 
 | Check | Status / reason |
 | --- | --- |
-| Docker Compose | New CI job builds the container and tests the PostgreSQL stack; final run pending publication. Docker is unavailable in the editing environment |
-| PostgreSQL CI | Passed in [GitHub Actions run 36294271325](https://github.com/rakesh-kumar34/url-shortner-assignment/actions/runs/36294271325) for delivery commit `aa6965d`; H2 verification and dependency auditing also passed |
-| Browser interaction and responsive visual review | New Playwright CI job exercises desktop/mobile flows, invalid tokens, token storage, disconnect cancellation, analytics and disable; final run pending publication |
+| Docker Compose | Passed in the linked final CI run: container build, PostgreSQL startup/readiness and HTTP smoke |
+| PostgreSQL CI | 36 cases passed with zero failures/errors/skips in [run 36327014251](https://github.com/rakesh-kumar34/url-shortner-assignment/actions/runs/36327014251); H2 verification and dependency auditing also passed |
+| Browser interaction and responsive visual review | Passed: desktop create/list/analytics/disable, invalid token, memory-only credential, reload, in-flight disconnect cancellation, no browser exceptions, and no horizontal overflow at 390/768px. Screenshots are retained in the `browser-smoke-evidence` CI artifact |
 | Human submission review | Pending; no candidate sign-off claimed |
+
+Docker and browser installation were unavailable in the editing environment, so these checks ran on the GitHub-hosted Ubuntu runner. Chromium checks and screenshot inspection are not a full accessibility or cross-browser audit. The browser evidence uses only synthetic example.com destinations.
 
 ## Reproduce and inspect
 

@@ -44,13 +44,17 @@ with sync_playwright() as playwright:
     row.get_by_role("button", name="View insights").click()
     expect(page.locator("#click-count")).to_have_text("1")
     expect(page.locator("#daily-table tr")).to_have_count(30)
-    page.screenshot(path=str(output / "desktop.png"), full_page=True)
+    # Full-page captures must start at the top; otherwise fixed off-screen
+    # accessibility controls can appear inside the captured page.
+    page.evaluate("window.scrollTo({top: 0, behavior: 'instant'})")
+    page.screenshot(path=str(output / "desktop.png"), full_page=True, animations="disabled")
     for width in (390, 768):
         page.set_viewport_size({"width": width, "height": 844})
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth"), f"Overflow at {width}px"
         expect(page.locator("#create-button")).to_be_visible()
         if width == 390:
-            page.screenshot(path=str(output / "mobile.png"), full_page=True)
+            page.evaluate("window.scrollTo({top: 0, behavior: 'instant'})")
+            page.screenshot(path=str(output / "mobile.png"), full_page=True, animations="disabled")
     # A delayed private response must be cancelled when the operator disconnects.
     pending = []
     stats_path = "**/api/urls/" + alias + "/stats"

@@ -2,6 +2,8 @@
 
 Repository: [rakesh-kumar34/url-shortner-assignment](https://github.com/rakesh-kumar34/url-shortner-assignment)
 
+[![Verify](https://github.com/rakesh-kumar34/url-shortner-assignment/actions/workflows/ci.yml/badge.svg)](https://github.com/rakesh-kumar34/url-shortner-assignment/actions/workflows/ci.yml)
+
 An original Java 17 / Spring Boot URL shortener with a browser console, persistent links and transactional analytics. Built for the supplied engineering assignment and Java role requirements. The supplied candidate repository was used only as a reference; no reference source code or assignment PDF is included.
 
 The project demonstrates three real increments: a greenfield service, a backward-compatible lifecycle enhancement, and an explicit resolution of retry and analytics ambiguity. AI assisted the engineering work; the application does not call an LLM.
