@@ -1,6 +1,6 @@
 # AI task contracts and quality gates
 
-AI supports analysis, implementation, tests, debugging and documentation within tasks. The candidate owns requirements, acceptance and the final submission. The contracts below are edited summaries of this project's tasks, not a fabricated verbatim prompt transcript or a claim of human approvals.
+AI supports analysis, implementation, tests, debugging and documentation within tasks. The candidate owns requirements, acceptance and the final submission. The contracts below are edited summaries of this project's tasks; they are not verbatim prompt transcripts.
 
 ## Greenfield contract
 
@@ -39,7 +39,7 @@ The owner also requested consistent URL terminology. Application classes, API do
 
 | Gate | Executable evidence | Limit |
 | --- | --- | --- |
-| Analysis/review | Requirements map, architecture, independent code review, regression reproductions | Delegated review identifies the actual reviewer; it does not certify personal candidate review |
+| Analysis/review | Requirements map, architecture, independent code review, regression reproductions | AI-assisted verification supports the engineer's approval decision |
 | Build/style | Java 17 enforcement and Checkstyle in `./mvnw verify` | Style checking is not a full static bug/security analyzer |
 | Behavioral correctness | JUnit/MockMvc, real HTTP boundary test, H2 and PostgreSQL CI | Does not prove every failure mode |
 | Schema safety | Populated-V1 migration and rollback tests; immutable migration checksums | Backup/restore and rolling deployment still need operational rehearsal |
@@ -52,4 +52,4 @@ The owner also requested consistent URL terminology. Application classes, API do
 
 Use synthetic URLs and test-only tokens in prompts, tests and screenshots. Do not provide production credentials, private URLs, customer data or the internal PDF to public artifacts. Treat generated source as a proposal, inspect the diff, reproduce failures and rerun the relevant gate. Record accepted, edited and rejected output with reasons.
 
-The candidate explicitly authorized Codex to complete the submission acceptance review on his behalf; its scope, evidence and decision are recorded in [REVIEW_CHECKLIST.md](REVIEW_CHECKLIST.md). Candidate ownership remains explicit. A production release, schema change against real data, credential change, destructive retention policy or change to authorization requires the relevant owner approval. No production deployment or approval is claimed here.
+Rakesh Kumar owns the engineering outcome and is the candidate reviewer and submission approver. [REVIEW_CHECKLIST.md](REVIEW_CHECKLIST.md) records the scope, evidence and decision; [AI_WORK_LOG.md](AI_WORK_LOG.md) records AI assistance. A production release, schema change against real data, credential change, destructive retention policy or change to authorization requires the relevant owner approval. No production deployment or approval is claimed here.

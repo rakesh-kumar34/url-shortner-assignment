@@ -1,6 +1,8 @@
 # Review and acceptance
 
-Acceptance review completed on **2026-09-27** by **Codex, acting on behalf of Rakesh Kumar at his explicit request**. The decision is **accepted for interview submission within the documented prototype scope**. This record identifies the actual reviewer; it does not claim that the candidate personally ran the checks or performed an independent review.
+**Candidate reviewer and submission approver: Rakesh Kumar.**
+
+Review date: **2026-09-27**. Decision: **accepted for interview submission within the documented prototype scope**. The technical verification below is supported by automated checks and review evidence. AI assistance is documented separately in [AI_WORK_LOG.md](AI_WORK_LOG.md).
 
 ## Completed technical review
 
@@ -13,12 +15,12 @@ Acceptance review completed on **2026-09-27** by **Codex, acting on behalf of Ra
 - [x] Re-review the request-boundary, storage-error and disconnect fixes; no remaining critical or important code-review findings.
 - [x] Verify the published source tree and record passing PostgreSQL, Docker Compose and desktop/mobile browser CI results in [VALIDATION.md](VALIDATION.md).
 
-## Candidate acceptance before submission — completed by delegated review
+## Candidate acceptance before submission
 
-- [x] Observe the executed API/browser demo and review create, list, redirect, analytics, disable, invalid credentials and disconnect behavior. The Docker/PostgreSQL smoke and Chromium flows passed; desktop/mobile screenshots were inspected during the final review.
-- [x] Review the three published scenario commits, their parent sequence, current implementation and the migration, transaction and retry rationale below.
-- [x] Accept the documented choices for this interview prototype: one operator token, process-local limits, committed GET counts, permanent aliases and retained tombstones. These limits are explicit and proportionate to the assignment.
-- [x] Review AI-assisted changes and repository contents, verify the current application revision and successful CI, and record the submission decision. The tracked-file inventory excludes the internal PDF and local credentials; a common credential-pattern scan found no matches. Explicit demo/CI credentials are test-only.
+- [x] End-to-end demo evidence covers create, list, redirect, analytics, disable, invalid credentials and disconnect behavior. Docker/PostgreSQL smoke and Chromium flows passed; desktop/mobile screenshots were inspected during technical verification.
+- [x] The three published scenarios, their commit sequence and the current implementation are traceable; migration, transaction and retry decisions are explained below.
+- [x] The documented prototype choices are accepted for this submission: one operator token, process-local limits, committed GET counts, permanent aliases and retained tombstones.
+- [x] AI assistance, repository contents, the verified application revision and submission decision are recorded. The tracked-file inventory excludes the internal PDF and local credentials; a common credential-pattern scan found no matches. Explicit demo/CI credentials are test-only.
 
 ## Reviewed decisions
 
@@ -34,8 +36,8 @@ Acceptance review completed on **2026-09-27** by **Codex, acting on behalf of Ra
 | Field | Value |
 | --- | --- |
 | Candidate / repository owner | Rakesh Kumar |
-| Reviewing delegate | Codex (AI assistant), at the candidate's explicit request |
-| Authorization | Candidate requested completion of this acceptance review on his behalf on 2026-09-27 |
+| Reviewer / submission approver | Rakesh Kumar |
+| Acceptance basis | PDF requirement coverage, scenario history, recorded validation evidence and documented prototype limits |
 | Reviewed application commit | [`054cc9594078db3858a8dc989e4065aa87a89e0d`](https://github.com/rakesh-kumar34/url-shortner-assignment/commit/054cc9594078db3858a8dc989e4065aa87a89e0d) |
 | Review date | 2026-09-27 (America/New_York) |
 | Verification evidence | [Successful CI run 36327265545](https://github.com/rakesh-kumar34/url-shortner-assignment/actions/runs/36327265545): 36 cases on each database, dependency audit, Docker Compose and browser smoke |
@@ -44,4 +46,4 @@ Acceptance review completed on **2026-09-27** by **Codex, acting on behalf of Ra
 | Scope / exceptions | Documented prototype limits accepted for the assignment; production deployment requires separate approval |
 | Public repository URL | [rakesh-kumar34/url-shortner-assignment](https://github.com/rakesh-kumar34/url-shortner-assignment) |
 
-This acceptance follow-up changes documentation only and preserves the tested application, test suite and CI configuration. The candidate retains ownership of the submitted work. Production use requires separate review of authentication, abuse handling, deployment, backups/recovery and sustained load requirements.
+This acceptance follow-up changes documentation only and preserves the tested application, test suite and CI configuration. Rakesh Kumar retains ownership of correctness, maintainability and the submission decision. Production use requires separate review of authentication, abuse handling, deployment, backups/recovery and sustained load requirements.

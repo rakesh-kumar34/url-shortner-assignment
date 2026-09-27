@@ -142,4 +142,4 @@ Start with the [PDF requirement-to-evidence map](docs/REQUIREMENTS.md).
 - [Delivery summary](docs/FINAL_SUMMARY.md)
 - [Human review checklist](docs/REVIEW_CHECKLIST.md)
 
-Technical evidence and the completed, owner-authorized delegated acceptance review are recorded in [the review checklist](docs/REVIEW_CHECKLIST.md).
+Technical evidence and Rakesh Kumar's candidate acceptance record are available in [the review checklist](docs/REVIEW_CHECKLIST.md).

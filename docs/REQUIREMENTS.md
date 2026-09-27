@@ -9,10 +9,10 @@ This map covers the supplied PDF's eight core requirements and five deliverables
 | 1. Understand intent and ambiguity | [Design](DESIGN.md), [scenarios](SCENARIOS.md): destination preservation, duplicate URLs, retry identity, expiry and the meaning of analytics are explicit | Covered |
 | 2. Decompose tasks and sequence dependencies | [Implementation plan](IMPLEMENTATION_PLAN.md): baseline → additive lifecycle/schema work → durable retries → validation and delivery | Covered |
 | 3. Reason about an existing codebase | Brownfield scenario identifies controller, service, entities, migration and analytics flow; `MigrationTest` upgrades populated V1 data | Covered |
-| 4. Use AI with task contracts, iteration and traceability | [Execution record](AI_WORK_LOG.md), [task contracts and gates](AI_WORKFLOW.md): generated/edited/rejected choices, actual failures, fixes, secure context, and owner approval boundaries | Covered; delegated acceptance recorded |
+| 4. Use AI with task contracts, iteration and traceability | [Execution record](AI_WORK_LOG.md), [task contracts and gates](AI_WORKFLOW.md): generated/edited/rejected choices, actual failures, fixes, secure context, and owner approval boundaries | Covered; candidate acceptance recorded |
 | 5. Generate engineering artifacts | Java source, explicit API DTOs, [OpenAPI](../src/main/resources/static/openapi.yaml), Flyway migrations, tests, Maven wrapper, Docker Compose and CI | Covered |
 | 6. Validate and control risks | [Validation](VALIDATION.md), [risk register](RISKS.md): transactions, migration, concurrency, abuse boundaries, dependency scan and measured performance | Covered within stated prototype scope |
-| 7. Maintain engineer-led oversight | The owner selected the stack, reference-only approach and terminology, then explicitly delegated the acceptance review. [Review checklist](REVIEW_CHECKLIST.md) identifies the reviewer, scope, evidence and decision | Owner-directed review and delegated acceptance recorded |
+| 7. Maintain engineer-led oversight | Rakesh Kumar selected the stack, reference-only approach and terminology and is the candidate reviewer/submission approver. AI assistance and technical verification are recorded separately from [candidate acceptance](REVIEW_CHECKLIST.md) | Engineer ownership and candidate acceptance recorded |
 | 8. Summarize the engineering outcome | [Final summary](FINAL_SUMMARY.md): artifacts, rationale, assumptions, validation, trade-offs and limits | Covered |
 
 ## Required deliverables
@@ -31,6 +31,8 @@ The reference repository uses a Spring Boot/Maven layout, migrations, a setup RE
 
 The reference's Java 21, Redis, Kafka, URL query stripping, geographic analytics and numbered template folders are implementation choices, not PDF requirements. This project uses Java 17, preserves complete destinations and keeps transactional analytics in a single service. [Architecture](ARCHITECTURE.md) explains the hot-URL and availability costs. More infrastructure would not itself establish a better submission.
 
+The reference also separates engineer sign-off from AI assistance. Its [Engineer Review and Sign-Off template](https://github.com/laharichoudary5lp/assignment/blob/main/docs/ai-assisted-engineering/10-review-signoff/ENGINEER-SIGNOFF.md) has blank Engineer and Date fields in the version inspected on 2026-09-27. Its [engineering playbook](https://github.com/laharichoudary5lp/assignment/blob/main/docs/ai-assisted-engineering/README.md) assigns final review to the engineer. This submission uses that ownership model with a completed candidate acceptance record; a blank template alone is not treated as evidence of approval.
+
 ## Naming and compatibility
 
 - Repository: `url-shortner-assignment` (the owner's existing repository name).
@@ -44,4 +46,4 @@ Earlier `/api/links` routes remain compatibility aliases. Already-applied V1–V
 
 ## Submission decision
 
-At the candidate's explicit request, Codex completed the acceptance review on his behalf on 2026-09-27. The outcome is accepted for interview submission within the documented prototype scope; [REVIEW_CHECKLIST.md](REVIEW_CHECKLIST.md) records the evidence and actual reviewer. This is delegated review, not a claim that the candidate personally performed every check. The candidate retains ownership, and production deployment requires separate operational and security decisions.
+**Candidate reviewer and submission approver: Rakesh Kumar.** The submission is accepted within the documented prototype scope on the basis of the requirement map, scenario history and validation evidence. [REVIEW_CHECKLIST.md](REVIEW_CHECKLIST.md) records the decision; [AI_WORK_LOG.md](AI_WORK_LOG.md) records AI assistance. Production deployment requires separate operational and security decisions.

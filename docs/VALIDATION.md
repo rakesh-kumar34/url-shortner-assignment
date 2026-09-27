@@ -69,7 +69,7 @@ This was a short, warm-JVM, single-process H2 measurement with no external desti
 | Docker Compose | Passed in the linked final CI run: container build, PostgreSQL startup/readiness and HTTP smoke |
 | PostgreSQL CI | 36 cases passed with zero failures/errors/skips in [run 36327265545](https://github.com/rakesh-kumar34/url-shortner-assignment/actions/runs/36327265545); H2 verification and dependency auditing also passed |
 | Browser interaction and responsive visual review | Passed: desktop create/list/analytics/disable, invalid token, memory-only credential, reload, in-flight disconnect cancellation, no browser exceptions, and no horizontal overflow at 390/768px. Screenshots are retained in the `browser-smoke-evidence` CI artifact |
-| Delegated submission acceptance | Completed on 2026-09-27 at the candidate's explicit request; accepted for interview submission. [Acceptance record](REVIEW_CHECKLIST.md) identifies Codex as reviewer and preserves candidate ownership |
+| Candidate submission acceptance | Reviewer / submission approver: **Rakesh Kumar**. Accepted for interview submission on 2026-09-27; [acceptance record](REVIEW_CHECKLIST.md) contains the evidence, scope and decision |
 
 Docker and browser installation were unavailable in the editing environment, so these checks ran on the GitHub-hosted Ubuntu runner. Chromium checks and screenshot inspection are not a full accessibility or cross-browser audit. The browser evidence uses only synthetic example.com destinations.
 

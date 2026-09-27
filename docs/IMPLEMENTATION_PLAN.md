@@ -6,7 +6,7 @@
 **Spec:** [DESIGN.md](DESIGN.md)
 
 ## Global constraints
-Java 17. Aliases 4-32 characters, random codes 12 characters. JSON 8 KiB. UTC expiry <=365 days. Authenticated management. No reference code, secrets, customer data or assignment PDF. Owner-authorized delegated acceptance is recorded in [REVIEW_CHECKLIST.md](REVIEW_CHECKLIST.md).
+Java 17. Aliases 4-32 characters, random codes 12 characters. JSON 8 KiB. UTC expiry <=365 days. Authenticated management. No reference code, secrets, customer data or assignment PDF. Candidate reviewer and submission approver: Rakesh Kumar; see [REVIEW_CHECKLIST.md](REVIEW_CHECKLIST.md).
 
 ## Review focus
 Replay after expiry; HEAD/disabled/expired counters; transaction rollback; populated v1 migration; concurrent idempotency and redirects.
