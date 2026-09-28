@@ -21,7 +21,7 @@ jobs:
           --health-cmd "pg_isready -U url_shortener -d url_shortener_test"
           --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -60,7 +60,7 @@ jobs:
       BASE_URL: http://localhost:8080
       PUBLIC_ORIGIN: http://localhost:8080
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
