@@ -35,7 +35,7 @@
         <execution><id>report</id><phase>verify</phase><goals><goal>report</goal></goals></execution>
       </executions>
     </plugin>
-    <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-enforcer-plugin</artifactId><version>3.6.2</version>
+    <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-enforcer-plugin</artifactId><version>3.6.3</version>
       <executions><execution><id>java-version</id><goals><goal>enforce</goal></goals><configuration><rules><requireJavaVersion><version>[17,18)</version></requireJavaVersion></rules></configuration></execution></executions>
     </plugin>
   </plugins></build>
