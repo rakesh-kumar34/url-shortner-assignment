@@ -33,7 +33,7 @@ jobs:
         run: |
           ./mvnw -B dependency:tree -DoutputFile=target/dependencies.txt
           python3 tools/audit_dependencies.py
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: h2-test-reports-and-coverage
@@ -46,7 +46,7 @@ jobs:
           TEST_DATABASE_USER: url_shortener
           TEST_DATABASE_PASSWORD: ci-ephemeral-password
         run: ./mvnw -B test
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: postgresql-test-reports
@@ -90,7 +90,7 @@ jobs:
         env:
           EMIT_REVIEW_SCREENSHOTS: '1'
         run: python tools/browser_smoke.py
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: browser-smoke-evidence
